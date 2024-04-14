@@ -1,7 +1,27 @@
 <Project>
-  <!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
-  <PropertyGroup>
+  <PropertyGroup Label="Versions">
+    <!-- Custom msbuild properties used in the project -->
+    <RepositoryTargetFrameworkVersion>net8.0</RepositoryTargetFrameworkVersion>
+  </PropertyGroup>
 
+  <!-- Settings for all projects. Can be overridden in the .csproj file. -->
+  <PropertyGroup Label="Global Settings">
+    <TargetFramework>$(RepositoryTargetFrameworkVersion)</TargetFramework>
+    <RollForward>LatestMinor</RollForward>
 
+    <!-- Implicitly adds some using directives for System.* namespaces. -->
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Enable null-checking for everything. -->
+    <Nullable>enable</Nullable>
+
+    <!-- Turn on code analysis.-->
+    <AnalysisMode>Recommended</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 </Project>
