@@ -1,0 +1,5 @@
+group TestProject
+xunit
+xunit.runner.visualstudio
+Microsoft.NET.Test.Sdk
+coverlet.collector

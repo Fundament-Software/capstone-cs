@@ -1,3 +1,11 @@
 source https://api.nuget.org/v3/index.json
 
 storage: none
+
+group TestProject
+source https://www.nuget.org/api/v2
+
+nuget coverlet.collector
+nuget Microsoft.NET.Test.Sdk
+nuget xunit
+nuget xunit.runner.visualstudio
