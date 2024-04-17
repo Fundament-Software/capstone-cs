@@ -1,12 +1,11 @@
 namespace Fundament.CapstoneCS.CodeGen.Compiler.Schema;
 
+using Capnp;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Fundament.CapstoneCS.CodeGen.Compiler.Runtime;
 
 [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.4.0.0"), TypeId(0xe682ab4cf923a417UL)]
 internal class Node : ICapnpSerializable
@@ -32,19 +31,19 @@ internal class Node : ICapnpSerializable
                 which = reader.which;
                 break;
             case WHICH.Struct:
-                Struct = CapnpSerializable.Create<Capnp.Schema.Node.@struct>(reader.Struct);
+                Struct = CapnpSerializable.Create<Node.@struct>(reader.Struct);
                 break;
             case WHICH.Enum:
-                Enum = CapnpSerializable.Create<Capnp.Schema.Node.@enum>(reader.Enum);
+                Enum = CapnpSerializable.Create<Node.@enum>(reader.Enum);
                 break;
             case WHICH.Interface:
-                Interface = CapnpSerializable.Create<Capnp.Schema.Node.@interface>(reader.Interface);
+                Interface = CapnpSerializable.Create<Node.@interface>(reader.Interface);
                 break;
             case WHICH.Const:
-                Const = CapnpSerializable.Create<Capnp.Schema.Node.@const>(reader.Const);
+                Const = CapnpSerializable.Create<Node.@const>(reader.Const);
                 break;
             case WHICH.Annotation:
-                Annotation = CapnpSerializable.Create<Capnp.Schema.Node.annotation>(reader.Annotation);
+                Annotation = CapnpSerializable.Create<Node.annotation>(reader.Annotation);
                 break;
         }
 
