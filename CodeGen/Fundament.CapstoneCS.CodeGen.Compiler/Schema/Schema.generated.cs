@@ -2,10 +2,7 @@ namespace Fundament.CapstoneCS.CodeGen.Compiler.Schema;
 
 using Capnp;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.4.0.0"), TypeId(0xe682ab4cf923a417UL)]
 internal class Node : ICapnpSerializable
@@ -51,9 +48,9 @@ internal class Node : ICapnpSerializable
         DisplayName = reader.DisplayName;
         DisplayNamePrefixLength = reader.DisplayNamePrefixLength;
         ScopeId = reader.ScopeId;
-        NestedNodes = reader.NestedNodes?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Node.NestedNode>(_));
-        Annotations = reader.Annotations?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Annotation>(_));
-        Parameters = reader.Parameters?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Node.Parameter>(_));
+        NestedNodes = reader.NestedNodes?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Node.NestedNode>(_));
+        Annotations = reader.Annotations?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Annotation>(_));
+        Parameters = reader.Parameters?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Node.Parameter>(_));
         IsGeneric = reader.IsGeneric;
         applyDefaults();
     }
@@ -158,21 +155,21 @@ internal class Node : ICapnpSerializable
         set;
     }
 
-    public IReadOnlyList<Capnp.Schema.Node.NestedNode> NestedNodes
+    public IReadOnlyList<Schema.Node.NestedNode> NestedNodes
     {
         get;
         set;
     }
 
-    public IReadOnlyList<Capnp.Schema.Annotation> Annotations
+    public IReadOnlyList<Schema.Annotation> Annotations
     {
         get;
         set;
     }
 
-    public Capnp.Schema.Node.@struct Struct
+    public Schema.Node.@struct Struct
     {
-        get => _which == WHICH.Struct ? (Capnp.Schema.Node.@struct)_content : null;
+        get => _which == WHICH.Struct ? (Schema.Node.@struct)_content : null;
         set
         {
             _which = WHICH.Struct;
@@ -180,9 +177,9 @@ internal class Node : ICapnpSerializable
         }
     }
 
-    public Capnp.Schema.Node.@enum Enum
+    public Schema.Node.@enum Enum
     {
-        get => _which == WHICH.Enum ? (Capnp.Schema.Node.@enum)_content : null;
+        get => _which == WHICH.Enum ? (Schema.Node.@enum)_content : null;
         set
         {
             _which = WHICH.Enum;
@@ -190,9 +187,9 @@ internal class Node : ICapnpSerializable
         }
     }
 
-    public Capnp.Schema.Node.@interface Interface
+    public Schema.Node.@interface Interface
     {
-        get => _which == WHICH.Interface ? (Capnp.Schema.Node.@interface)_content : null;
+        get => _which == WHICH.Interface ? (Schema.Node.@interface)_content : null;
         set
         {
             _which = WHICH.Interface;
@@ -200,9 +197,9 @@ internal class Node : ICapnpSerializable
         }
     }
 
-    public Capnp.Schema.Node.@const Const
+    public Schema.Node.@const Const
     {
-        get => _which == WHICH.Const ? (Capnp.Schema.Node.@const)_content : null;
+        get => _which == WHICH.Const ? (Schema.Node.@const)_content : null;
         set
         {
             _which = WHICH.Const;
@@ -210,9 +207,9 @@ internal class Node : ICapnpSerializable
         }
     }
 
-    public Capnp.Schema.Node.annotation Annotation
+    public Schema.Node.annotation Annotation
     {
-        get => _which == WHICH.Annotation ? (Capnp.Schema.Node.annotation)_content : null;
+        get => _which == WHICH.Annotation ? (Schema.Node.annotation)_content : null;
         set
         {
             _which = WHICH.Annotation;
@@ -220,7 +217,7 @@ internal class Node : ICapnpSerializable
         }
     }
 
-    public IReadOnlyList<Capnp.Schema.Node.Parameter> Parameters
+    public IReadOnlyList<Schema.Node.Parameter> Parameters
     {
         get;
         set;
@@ -248,16 +245,16 @@ internal class Node : ICapnpSerializable
         public string DisplayName => ctx.ReadText(0, null);
         public uint DisplayNamePrefixLength => ctx.ReadDataUInt(64UL, 0U);
         public ulong ScopeId => ctx.ReadDataULong(128UL, 0UL);
-        public IReadOnlyList<Capnp.Schema.Node.NestedNode.READER> NestedNodes => ctx.ReadList(1).Cast(Capnp.Schema.Node.NestedNode.READER.create);
+        public IReadOnlyList<Schema.Node.NestedNode.READER> NestedNodes => ctx.ReadList(1).Cast(Schema.Node.NestedNode.READER.create);
         public bool HasNestedNodes => ctx.IsStructFieldNonNull(1);
-        public IReadOnlyList<Capnp.Schema.Annotation.READER> Annotations => ctx.ReadList(2).Cast(Capnp.Schema.Annotation.READER.create);
+        public IReadOnlyList<Schema.Annotation.READER> Annotations => ctx.ReadList(2).Cast(Schema.Annotation.READER.create);
         public bool HasAnnotations => ctx.IsStructFieldNonNull(2);
         public @struct.READER Struct => which == WHICH.Struct ? new @struct.READER(ctx) : default;
         public @enum.READER Enum => which == WHICH.Enum ? new @enum.READER(ctx) : default;
         public @interface.READER Interface => which == WHICH.Interface ? new @interface.READER(ctx) : default;
         public @const.READER Const => which == WHICH.Const ? new @const.READER(ctx) : default;
         public annotation.READER Annotation => which == WHICH.Annotation ? new annotation.READER(ctx) : default;
-        public IReadOnlyList<Capnp.Schema.Node.Parameter.READER> Parameters => ctx.ReadList(5).Cast(Capnp.Schema.Node.Parameter.READER.create);
+        public IReadOnlyList<Schema.Node.Parameter.READER> Parameters => ctx.ReadList(5).Cast(Schema.Node.Parameter.READER.create);
         public bool HasParameters => ctx.IsStructFieldNonNull(5);
         public bool IsGeneric => ctx.ReadDataBool(288UL, false);
     }
@@ -299,15 +296,15 @@ internal class Node : ICapnpSerializable
             set => this.WriteData(128UL, value, 0UL);
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.Node.NestedNode.WRITER> NestedNodes
+        public ListOfStructsSerializer<Schema.Node.NestedNode.WRITER> NestedNodes
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Node.NestedNode.WRITER>>(1);
+            get => BuildPointer<ListOfStructsSerializer<Schema.Node.NestedNode.WRITER>>(1);
             set => Link(1, value);
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.Annotation.WRITER> Annotations
+        public ListOfStructsSerializer<Schema.Annotation.WRITER> Annotations
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Annotation.WRITER>>(2);
+            get => BuildPointer<ListOfStructsSerializer<Schema.Annotation.WRITER>>(2);
             set => Link(2, value);
         }
 
@@ -336,9 +333,9 @@ internal class Node : ICapnpSerializable
             get => which == WHICH.Annotation ? Rewrap<annotation.WRITER>() : default;
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.Node.Parameter.WRITER> Parameters
+        public ListOfStructsSerializer<Schema.Node.Parameter.WRITER> Parameters
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Node.Parameter.WRITER>>(5);
+            get => BuildPointer<ListOfStructsSerializer<Schema.Node.Parameter.WRITER>>(5);
             set => Link(5, value);
         }
 
@@ -362,7 +359,7 @@ internal class Node : ICapnpSerializable
             IsGroup = reader.IsGroup;
             DiscriminantCount = reader.DiscriminantCount;
             DiscriminantOffset = reader.DiscriminantOffset;
-            Fields = reader.Fields?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Field>(_));
+            Fields = reader.Fields?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Field>(_));
             applyDefaults();
         }
 
@@ -398,7 +395,7 @@ internal class Node : ICapnpSerializable
             set;
         }
 
-        public Capnp.Schema.ElementSize PreferredListEncoding
+        public Schema.ElementSize PreferredListEncoding
         {
             get;
             set;
@@ -422,7 +419,7 @@ internal class Node : ICapnpSerializable
             set;
         }
 
-        public IReadOnlyList<Capnp.Schema.Field> Fields
+        public IReadOnlyList<Schema.Field> Fields
         {
             get;
             set;
@@ -441,11 +438,11 @@ internal class Node : ICapnpSerializable
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public ushort DataWordCount => ctx.ReadDataUShort(112UL, (ushort)0);
             public ushort PointerCount => ctx.ReadDataUShort(192UL, (ushort)0);
-            public Capnp.Schema.ElementSize PreferredListEncoding => (Capnp.Schema.ElementSize)ctx.ReadDataUShort(208UL, (ushort)0);
+            public Schema.ElementSize PreferredListEncoding => (Schema.ElementSize)ctx.ReadDataUShort(208UL, (ushort)0);
             public bool IsGroup => ctx.ReadDataBool(224UL, false);
             public ushort DiscriminantCount => ctx.ReadDataUShort(240UL, (ushort)0);
             public uint DiscriminantOffset => ctx.ReadDataUInt(256UL, 0U);
-            public IReadOnlyList<Capnp.Schema.Field.READER> Fields => ctx.ReadList(3).Cast(Capnp.Schema.Field.READER.create);
+            public IReadOnlyList<Schema.Field.READER> Fields => ctx.ReadList(3).Cast(Schema.Field.READER.create);
             public bool HasFields => ctx.IsStructFieldNonNull(3);
         }
 
@@ -467,9 +464,9 @@ internal class Node : ICapnpSerializable
                 set => this.WriteData(192UL, value, (ushort)0);
             }
 
-            public Capnp.Schema.ElementSize PreferredListEncoding
+            public Schema.ElementSize PreferredListEncoding
             {
-                get => (Capnp.Schema.ElementSize)this.ReadDataUShort(208UL, (ushort)0);
+                get => (Schema.ElementSize)this.ReadDataUShort(208UL, (ushort)0);
                 set => this.WriteData(208UL, (ushort)value, (ushort)0);
             }
 
@@ -491,9 +488,9 @@ internal class Node : ICapnpSerializable
                 set => this.WriteData(256UL, value, 0U);
             }
 
-            public ListOfStructsSerializer<Capnp.Schema.Field.WRITER> Fields
+            public ListOfStructsSerializer<Schema.Field.WRITER> Fields
             {
-                get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Field.WRITER>>(3);
+                get => BuildPointer<ListOfStructsSerializer<Schema.Field.WRITER>>(3);
                 set => Link(3, value);
             }
         }
@@ -506,7 +503,7 @@ internal class Node : ICapnpSerializable
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            Enumerants = reader.Enumerants?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Enumerant>(_));
+            Enumerants = reader.Enumerants?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Enumerant>(_));
             applyDefaults();
         }
 
@@ -524,7 +521,7 @@ internal class Node : ICapnpSerializable
         {
         }
 
-        public IReadOnlyList<Capnp.Schema.Enumerant> Enumerants
+        public IReadOnlyList<Schema.Enumerant> Enumerants
         {
             get;
             set;
@@ -541,7 +538,7 @@ internal class Node : ICapnpSerializable
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public IReadOnlyList<Capnp.Schema.Enumerant.READER> Enumerants => ctx.ReadList(3).Cast(Capnp.Schema.Enumerant.READER.create);
+            public IReadOnlyList<Schema.Enumerant.READER> Enumerants => ctx.ReadList(3).Cast(Schema.Enumerant.READER.create);
             public bool HasEnumerants => ctx.IsStructFieldNonNull(3);
         }
 
@@ -551,9 +548,9 @@ internal class Node : ICapnpSerializable
             {
             }
 
-            public ListOfStructsSerializer<Capnp.Schema.Enumerant.WRITER> Enumerants
+            public ListOfStructsSerializer<Schema.Enumerant.WRITER> Enumerants
             {
-                get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Enumerant.WRITER>>(3);
+                get => BuildPointer<ListOfStructsSerializer<Schema.Enumerant.WRITER>>(3);
                 set => Link(3, value);
             }
         }
@@ -566,8 +563,8 @@ internal class Node : ICapnpSerializable
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            Methods = reader.Methods?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Method>(_));
-            Superclasses = reader.Superclasses?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Superclass>(_));
+            Methods = reader.Methods?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Method>(_));
+            Superclasses = reader.Superclasses?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Superclass>(_));
             applyDefaults();
         }
 
@@ -586,13 +583,13 @@ internal class Node : ICapnpSerializable
         {
         }
 
-        public IReadOnlyList<Capnp.Schema.Method> Methods
+        public IReadOnlyList<Schema.Method> Methods
         {
             get;
             set;
         }
 
-        public IReadOnlyList<Capnp.Schema.Superclass> Superclasses
+        public IReadOnlyList<Schema.Superclass> Superclasses
         {
             get;
             set;
@@ -609,9 +606,9 @@ internal class Node : ICapnpSerializable
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public IReadOnlyList<Capnp.Schema.Method.READER> Methods => ctx.ReadList(3).Cast(Capnp.Schema.Method.READER.create);
+            public IReadOnlyList<Schema.Method.READER> Methods => ctx.ReadList(3).Cast(Schema.Method.READER.create);
             public bool HasMethods => ctx.IsStructFieldNonNull(3);
-            public IReadOnlyList<Capnp.Schema.Superclass.READER> Superclasses => ctx.ReadList(4).Cast(Capnp.Schema.Superclass.READER.create);
+            public IReadOnlyList<Schema.Superclass.READER> Superclasses => ctx.ReadList(4).Cast(Schema.Superclass.READER.create);
             public bool HasSuperclasses => ctx.IsStructFieldNonNull(4);
         }
 
@@ -621,15 +618,15 @@ internal class Node : ICapnpSerializable
             {
             }
 
-            public ListOfStructsSerializer<Capnp.Schema.Method.WRITER> Methods
+            public ListOfStructsSerializer<Schema.Method.WRITER> Methods
             {
-                get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Method.WRITER>>(3);
+                get => BuildPointer<ListOfStructsSerializer<Schema.Method.WRITER>>(3);
                 set => Link(3, value);
             }
 
-            public ListOfStructsSerializer<Capnp.Schema.Superclass.WRITER> Superclasses
+            public ListOfStructsSerializer<Schema.Superclass.WRITER> Superclasses
             {
-                get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Superclass.WRITER>>(4);
+                get => BuildPointer<ListOfStructsSerializer<Schema.Superclass.WRITER>>(4);
                 set => Link(4, value);
             }
         }
@@ -642,8 +639,8 @@ internal class Node : ICapnpSerializable
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            Type = CapnpSerializable.Create<Capnp.Schema.Type>(reader.Type);
-            Value = CapnpSerializable.Create<Capnp.Schema.Value>(reader.Value);
+            Type = CapnpSerializable.Create<Schema.Type>(reader.Type);
+            Value = CapnpSerializable.Create<Schema.Value>(reader.Value);
             applyDefaults();
         }
 
@@ -662,13 +659,13 @@ internal class Node : ICapnpSerializable
         {
         }
 
-        public Capnp.Schema.Type Type
+        public Schema.Type Type
         {
             get;
             set;
         }
 
-        public Capnp.Schema.Value Value
+        public Schema.Value Value
         {
             get;
             set;
@@ -685,9 +682,9 @@ internal class Node : ICapnpSerializable
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Capnp.Schema.Type.READER Type => ctx.ReadStruct(3, Capnp.Schema.Type.READER.create);
+            public Schema.Type.READER Type => ctx.ReadStruct(3, Schema.Type.READER.create);
             public bool HasType => ctx.IsStructFieldNonNull(3);
-            public Capnp.Schema.Value.READER Value => ctx.ReadStruct(4, Capnp.Schema.Value.READER.create);
+            public Schema.Value.READER Value => ctx.ReadStruct(4, Schema.Value.READER.create);
             public bool HasValue => ctx.IsStructFieldNonNull(4);
         }
 
@@ -697,15 +694,15 @@ internal class Node : ICapnpSerializable
             {
             }
 
-            public Capnp.Schema.Type.WRITER Type
+            public Schema.Type.WRITER Type
             {
-                get => BuildPointer<Capnp.Schema.Type.WRITER>(3);
+                get => BuildPointer<Schema.Type.WRITER>(3);
                 set => Link(3, value);
             }
 
-            public Capnp.Schema.Value.WRITER Value
+            public Schema.Value.WRITER Value
             {
-                get => BuildPointer<Capnp.Schema.Value.WRITER>(4);
+                get => BuildPointer<Schema.Value.WRITER>(4);
                 set => Link(4, value);
             }
         }
@@ -718,7 +715,7 @@ internal class Node : ICapnpSerializable
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            Type = CapnpSerializable.Create<Capnp.Schema.Type>(reader.Type);
+            Type = CapnpSerializable.Create<Schema.Type>(reader.Type);
             TargetsFile = reader.TargetsFile;
             TargetsConst = reader.TargetsConst;
             TargetsEnum = reader.TargetsEnum;
@@ -760,7 +757,7 @@ internal class Node : ICapnpSerializable
         {
         }
 
-        public Capnp.Schema.Type Type
+        public Schema.Type Type
         {
             get;
             set;
@@ -849,7 +846,7 @@ internal class Node : ICapnpSerializable
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Capnp.Schema.Type.READER Type => ctx.ReadStruct(3, Capnp.Schema.Type.READER.create);
+            public Schema.Type.READER Type => ctx.ReadStruct(3, Schema.Type.READER.create);
             public bool HasType => ctx.IsStructFieldNonNull(3);
             public bool TargetsFile => ctx.ReadDataBool(112UL, false);
             public bool TargetsConst => ctx.ReadDataBool(113UL, false);
@@ -871,9 +868,9 @@ internal class Node : ICapnpSerializable
             {
             }
 
-            public Capnp.Schema.Type.WRITER Type
+            public Schema.Type.WRITER Type
             {
-                get => BuildPointer<Capnp.Schema.Type.WRITER>(3);
+                get => BuildPointer<Schema.Type.WRITER>(3);
                 set => Link(3, value);
             }
 
@@ -1095,7 +1092,7 @@ internal class Node : ICapnpSerializable
             var reader = READER.create(arg_);
             Id = reader.Id;
             DocComment = reader.DocComment;
-            Members = reader.Members?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Node.SourceInfo.Member>(_));
+            Members = reader.Members?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Node.SourceInfo.Member>(_));
             applyDefaults();
         }
 
@@ -1127,7 +1124,7 @@ internal class Node : ICapnpSerializable
             set;
         }
 
-        public IReadOnlyList<Capnp.Schema.Node.SourceInfo.Member> Members
+        public IReadOnlyList<Schema.Node.SourceInfo.Member> Members
         {
             get;
             set;
@@ -1146,7 +1143,7 @@ internal class Node : ICapnpSerializable
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public ulong Id => ctx.ReadDataULong(0UL, 0UL);
             public string DocComment => ctx.ReadText(0, null);
-            public IReadOnlyList<Capnp.Schema.Node.SourceInfo.Member.READER> Members => ctx.ReadList(1).Cast(Capnp.Schema.Node.SourceInfo.Member.READER.create);
+            public IReadOnlyList<Schema.Node.SourceInfo.Member.READER> Members => ctx.ReadList(1).Cast(Schema.Node.SourceInfo.Member.READER.create);
             public bool HasMembers => ctx.IsStructFieldNonNull(1);
         }
 
@@ -1169,9 +1166,9 @@ internal class Node : ICapnpSerializable
                 set => this.WriteText(0, value, null);
             }
 
-            public ListOfStructsSerializer<Capnp.Schema.Node.SourceInfo.Member.WRITER> Members
+            public ListOfStructsSerializer<Schema.Node.SourceInfo.Member.WRITER> Members
             {
-                get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Node.SourceInfo.Member.WRITER>>(1);
+                get => BuildPointer<ListOfStructsSerializer<Schema.Node.SourceInfo.Member.WRITER>>(1);
                 set => Link(1, value);
             }
         }
@@ -1255,18 +1252,18 @@ internal class Field : ICapnpSerializable
         switch (reader.which)
         {
             case WHICH.Slot:
-                Slot = CapnpSerializable.Create<Capnp.Schema.Field.slot>(reader.Slot);
+                Slot = CapnpSerializable.Create<Schema.Field.slot>(reader.Slot);
                 break;
             case WHICH.Group:
-                Group = CapnpSerializable.Create<Capnp.Schema.Field.@group>(reader.Group);
+                Group = CapnpSerializable.Create<Schema.Field.@group>(reader.Group);
                 break;
         }
 
         Name = reader.Name;
         CodeOrder = reader.CodeOrder;
-        Annotations = reader.Annotations?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Annotation>(_));
+        Annotations = reader.Annotations?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Annotation>(_));
         DiscriminantValue = reader.DiscriminantValue;
-        Ordinal = CapnpSerializable.Create<Capnp.Schema.Field.ordinal>(reader.Ordinal);
+        Ordinal = CapnpSerializable.Create<Schema.Field.ordinal>(reader.Ordinal);
         applyDefaults();
     }
 
@@ -1333,7 +1330,7 @@ internal class Field : ICapnpSerializable
         set;
     }
 
-    public IReadOnlyList<Capnp.Schema.Annotation> Annotations
+    public IReadOnlyList<Schema.Annotation> Annotations
     {
         get;
         set;
@@ -1346,9 +1343,9 @@ internal class Field : ICapnpSerializable
     }
 
         = 65535;
-    public Capnp.Schema.Field.slot Slot
+    public Schema.Field.slot Slot
     {
-        get => _which == WHICH.Slot ? (Capnp.Schema.Field.slot)_content : null;
+        get => _which == WHICH.Slot ? (Schema.Field.slot)_content : null;
         set
         {
             _which = WHICH.Slot;
@@ -1356,9 +1353,9 @@ internal class Field : ICapnpSerializable
         }
     }
 
-    public Capnp.Schema.Field.@group Group
+    public Schema.Field.@group Group
     {
-        get => _which == WHICH.Group ? (Capnp.Schema.Field.@group)_content : null;
+        get => _which == WHICH.Group ? (Schema.Field.@group)_content : null;
         set
         {
             _which = WHICH.Group;
@@ -1366,7 +1363,7 @@ internal class Field : ICapnpSerializable
         }
     }
 
-    public Capnp.Schema.Field.ordinal Ordinal
+    public Schema.Field.ordinal Ordinal
     {
         get;
         set;
@@ -1386,7 +1383,7 @@ internal class Field : ICapnpSerializable
         public WHICH which => (WHICH)ctx.ReadDataUShort(64U, (ushort)0);
         public string Name => ctx.ReadText(0, null);
         public ushort CodeOrder => ctx.ReadDataUShort(0UL, (ushort)0);
-        public IReadOnlyList<Capnp.Schema.Annotation.READER> Annotations => ctx.ReadList(1).Cast(Capnp.Schema.Annotation.READER.create);
+        public IReadOnlyList<Schema.Annotation.READER> Annotations => ctx.ReadList(1).Cast(Schema.Annotation.READER.create);
         public bool HasAnnotations => ctx.IsStructFieldNonNull(1);
         public ushort DiscriminantValue => ctx.ReadDataUShort(16UL, (ushort)65535);
         public slot.READER Slot => which == WHICH.Slot ? new slot.READER(ctx) : default;
@@ -1419,9 +1416,9 @@ internal class Field : ICapnpSerializable
             set => this.WriteData(0UL, value, (ushort)0);
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.Annotation.WRITER> Annotations
+        public ListOfStructsSerializer<Schema.Annotation.WRITER> Annotations
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Annotation.WRITER>>(1);
+            get => BuildPointer<ListOfStructsSerializer<Schema.Annotation.WRITER>>(1);
             set => Link(1, value);
         }
 
@@ -1455,8 +1452,8 @@ internal class Field : ICapnpSerializable
         {
             var reader = READER.create(arg_);
             Offset = reader.Offset;
-            Type = CapnpSerializable.Create<Capnp.Schema.Type>(reader.Type);
-            DefaultValue = CapnpSerializable.Create<Capnp.Schema.Value>(reader.DefaultValue);
+            Type = CapnpSerializable.Create<Schema.Type>(reader.Type);
+            DefaultValue = CapnpSerializable.Create<Schema.Value>(reader.DefaultValue);
             HadExplicitDefault = reader.HadExplicitDefault;
             applyDefaults();
         }
@@ -1484,13 +1481,13 @@ internal class Field : ICapnpSerializable
             set;
         }
 
-        public Capnp.Schema.Type Type
+        public Schema.Type Type
         {
             get;
             set;
         }
 
-        public Capnp.Schema.Value DefaultValue
+        public Schema.Value DefaultValue
         {
             get;
             set;
@@ -1514,9 +1511,9 @@ internal class Field : ICapnpSerializable
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public uint Offset => ctx.ReadDataUInt(32UL, 0U);
-            public Capnp.Schema.Type.READER Type => ctx.ReadStruct(2, Capnp.Schema.Type.READER.create);
+            public Schema.Type.READER Type => ctx.ReadStruct(2, Schema.Type.READER.create);
             public bool HasType => ctx.IsStructFieldNonNull(2);
-            public Capnp.Schema.Value.READER DefaultValue => ctx.ReadStruct(3, Capnp.Schema.Value.READER.create);
+            public Schema.Value.READER DefaultValue => ctx.ReadStruct(3, Schema.Value.READER.create);
             public bool HasDefaultValue => ctx.IsStructFieldNonNull(3);
             public bool HadExplicitDefault => ctx.ReadDataBool(128UL, false);
         }
@@ -1533,15 +1530,15 @@ internal class Field : ICapnpSerializable
                 set => this.WriteData(32UL, value, 0U);
             }
 
-            public Capnp.Schema.Type.WRITER Type
+            public Schema.Type.WRITER Type
             {
-                get => BuildPointer<Capnp.Schema.Type.WRITER>(2);
+                get => BuildPointer<Schema.Type.WRITER>(2);
                 set => Link(2, value);
             }
 
-            public Capnp.Schema.Value.WRITER DefaultValue
+            public Schema.Value.WRITER DefaultValue
             {
-                get => BuildPointer<Capnp.Schema.Value.WRITER>(3);
+                get => BuildPointer<Schema.Value.WRITER>(3);
                 set => Link(3, value);
             }
 
@@ -1737,7 +1734,7 @@ internal class Enumerant : ICapnpSerializable
         var reader = READER.create(arg_);
         Name = reader.Name;
         CodeOrder = reader.CodeOrder;
-        Annotations = reader.Annotations?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Annotation>(_));
+        Annotations = reader.Annotations?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Annotation>(_));
         applyDefaults();
     }
 
@@ -1769,7 +1766,7 @@ internal class Enumerant : ICapnpSerializable
         set;
     }
 
-    public IReadOnlyList<Capnp.Schema.Annotation> Annotations
+    public IReadOnlyList<Schema.Annotation> Annotations
     {
         get;
         set;
@@ -1788,7 +1785,7 @@ internal class Enumerant : ICapnpSerializable
         public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
         public string Name => ctx.ReadText(0, null);
         public ushort CodeOrder => ctx.ReadDataUShort(0UL, (ushort)0);
-        public IReadOnlyList<Capnp.Schema.Annotation.READER> Annotations => ctx.ReadList(1).Cast(Capnp.Schema.Annotation.READER.create);
+        public IReadOnlyList<Schema.Annotation.READER> Annotations => ctx.ReadList(1).Cast(Schema.Annotation.READER.create);
         public bool HasAnnotations => ctx.IsStructFieldNonNull(1);
     }
 
@@ -1811,9 +1808,9 @@ internal class Enumerant : ICapnpSerializable
             set => this.WriteData(0UL, value, (ushort)0);
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.Annotation.WRITER> Annotations
+        public ListOfStructsSerializer<Schema.Annotation.WRITER> Annotations
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Annotation.WRITER>>(1);
+            get => BuildPointer<ListOfStructsSerializer<Schema.Annotation.WRITER>>(1);
             set => Link(1, value);
         }
     }
@@ -1827,7 +1824,7 @@ internal class Superclass : ICapnpSerializable
     {
         var reader = READER.create(arg_);
         Id = reader.Id;
-        Brand = CapnpSerializable.Create<Capnp.Schema.Brand>(reader.Brand);
+        Brand = CapnpSerializable.Create<Schema.Brand>(reader.Brand);
         applyDefaults();
     }
 
@@ -1852,7 +1849,7 @@ internal class Superclass : ICapnpSerializable
         set;
     }
 
-    public Capnp.Schema.Brand Brand
+    public Schema.Brand Brand
     {
         get;
         set;
@@ -1870,7 +1867,7 @@ internal class Superclass : ICapnpSerializable
         public static implicit operator DeserializerState(READER reader) => reader.ctx;
         public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
         public ulong Id => ctx.ReadDataULong(0UL, 0UL);
-        public Capnp.Schema.Brand.READER Brand => ctx.ReadStruct(0, Capnp.Schema.Brand.READER.create);
+        public Schema.Brand.READER Brand => ctx.ReadStruct(0, Schema.Brand.READER.create);
         public bool HasBrand => ctx.IsStructFieldNonNull(0);
     }
 
@@ -1887,9 +1884,9 @@ internal class Superclass : ICapnpSerializable
             set => this.WriteData(0UL, value, 0UL);
         }
 
-        public Capnp.Schema.Brand.WRITER Brand
+        public Schema.Brand.WRITER Brand
         {
-            get => BuildPointer<Capnp.Schema.Brand.WRITER>(0);
+            get => BuildPointer<Schema.Brand.WRITER>(0);
             set => Link(0, value);
         }
     }
@@ -1906,10 +1903,10 @@ internal class Method : ICapnpSerializable
         CodeOrder = reader.CodeOrder;
         ParamStructType = reader.ParamStructType;
         ResultStructType = reader.ResultStructType;
-        Annotations = reader.Annotations?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Annotation>(_));
-        ParamBrand = CapnpSerializable.Create<Capnp.Schema.Brand>(reader.ParamBrand);
-        ResultBrand = CapnpSerializable.Create<Capnp.Schema.Brand>(reader.ResultBrand);
-        ImplicitParameters = reader.ImplicitParameters?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Node.Parameter>(_));
+        Annotations = reader.Annotations?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Annotation>(_));
+        ParamBrand = CapnpSerializable.Create<Schema.Brand>(reader.ParamBrand);
+        ResultBrand = CapnpSerializable.Create<Schema.Brand>(reader.ResultBrand);
+        ImplicitParameters = reader.ImplicitParameters?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Node.Parameter>(_));
         applyDefaults();
     }
 
@@ -1958,25 +1955,25 @@ internal class Method : ICapnpSerializable
         set;
     }
 
-    public IReadOnlyList<Capnp.Schema.Annotation> Annotations
+    public IReadOnlyList<Schema.Annotation> Annotations
     {
         get;
         set;
     }
 
-    public Capnp.Schema.Brand ParamBrand
+    public Schema.Brand ParamBrand
     {
         get;
         set;
     }
 
-    public Capnp.Schema.Brand ResultBrand
+    public Schema.Brand ResultBrand
     {
         get;
         set;
     }
 
-    public IReadOnlyList<Capnp.Schema.Node.Parameter> ImplicitParameters
+    public IReadOnlyList<Schema.Node.Parameter> ImplicitParameters
     {
         get;
         set;
@@ -1997,13 +1994,13 @@ internal class Method : ICapnpSerializable
         public ushort CodeOrder => ctx.ReadDataUShort(0UL, (ushort)0);
         public ulong ParamStructType => ctx.ReadDataULong(64UL, 0UL);
         public ulong ResultStructType => ctx.ReadDataULong(128UL, 0UL);
-        public IReadOnlyList<Capnp.Schema.Annotation.READER> Annotations => ctx.ReadList(1).Cast(Capnp.Schema.Annotation.READER.create);
+        public IReadOnlyList<Schema.Annotation.READER> Annotations => ctx.ReadList(1).Cast(Schema.Annotation.READER.create);
         public bool HasAnnotations => ctx.IsStructFieldNonNull(1);
-        public Capnp.Schema.Brand.READER ParamBrand => ctx.ReadStruct(2, Capnp.Schema.Brand.READER.create);
+        public Schema.Brand.READER ParamBrand => ctx.ReadStruct(2, Schema.Brand.READER.create);
         public bool HasParamBrand => ctx.IsStructFieldNonNull(2);
-        public Capnp.Schema.Brand.READER ResultBrand => ctx.ReadStruct(3, Capnp.Schema.Brand.READER.create);
+        public Schema.Brand.READER ResultBrand => ctx.ReadStruct(3, Schema.Brand.READER.create);
         public bool HasResultBrand => ctx.IsStructFieldNonNull(3);
-        public IReadOnlyList<Capnp.Schema.Node.Parameter.READER> ImplicitParameters => ctx.ReadList(4).Cast(Capnp.Schema.Node.Parameter.READER.create);
+        public IReadOnlyList<Schema.Node.Parameter.READER> ImplicitParameters => ctx.ReadList(4).Cast(Schema.Node.Parameter.READER.create);
         public bool HasImplicitParameters => ctx.IsStructFieldNonNull(4);
     }
 
@@ -2038,27 +2035,27 @@ internal class Method : ICapnpSerializable
             set => this.WriteData(128UL, value, 0UL);
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.Annotation.WRITER> Annotations
+        public ListOfStructsSerializer<Schema.Annotation.WRITER> Annotations
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Annotation.WRITER>>(1);
+            get => BuildPointer<ListOfStructsSerializer<Schema.Annotation.WRITER>>(1);
             set => Link(1, value);
         }
 
-        public Capnp.Schema.Brand.WRITER ParamBrand
+        public Schema.Brand.WRITER ParamBrand
         {
-            get => BuildPointer<Capnp.Schema.Brand.WRITER>(2);
+            get => BuildPointer<Schema.Brand.WRITER>(2);
             set => Link(2, value);
         }
 
-        public Capnp.Schema.Brand.WRITER ResultBrand
+        public Schema.Brand.WRITER ResultBrand
         {
-            get => BuildPointer<Capnp.Schema.Brand.WRITER>(3);
+            get => BuildPointer<Schema.Brand.WRITER>(3);
             set => Link(3, value);
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.Node.Parameter.WRITER> ImplicitParameters
+        public ListOfStructsSerializer<Schema.Node.Parameter.WRITER> ImplicitParameters
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Node.Parameter.WRITER>>(4);
+            get => BuildPointer<ListOfStructsSerializer<Schema.Node.Parameter.WRITER>>(4);
             set => Link(4, value);
         }
     }
@@ -2140,19 +2137,19 @@ internal class Type : ICapnpSerializable
                 which = reader.which;
                 break;
             case WHICH.List:
-                List = CapnpSerializable.Create<Capnp.Schema.Type.list>(reader.List);
+                List = CapnpSerializable.Create<Schema.Type.list>(reader.List);
                 break;
             case WHICH.Enum:
-                Enum = CapnpSerializable.Create<Capnp.Schema.Type.@enum>(reader.Enum);
+                Enum = CapnpSerializable.Create<Schema.Type.@enum>(reader.Enum);
                 break;
             case WHICH.Struct:
-                Struct = CapnpSerializable.Create<Capnp.Schema.Type.@struct>(reader.Struct);
+                Struct = CapnpSerializable.Create<Schema.Type.@struct>(reader.Struct);
                 break;
             case WHICH.Interface:
-                Interface = CapnpSerializable.Create<Capnp.Schema.Type.@interface>(reader.Interface);
+                Interface = CapnpSerializable.Create<Schema.Type.@interface>(reader.Interface);
                 break;
             case WHICH.AnyPointer:
-                AnyPointer = CapnpSerializable.Create<Capnp.Schema.Type.anyPointer>(reader.AnyPointer);
+                AnyPointer = CapnpSerializable.Create<Schema.Type.anyPointer>(reader.AnyPointer);
                 break;
         }
 
@@ -2278,9 +2275,9 @@ internal class Type : ICapnpSerializable
     {
     }
 
-    public Capnp.Schema.Type.list List
+    public Schema.Type.list List
     {
-        get => _which == WHICH.List ? (Capnp.Schema.Type.list)_content : null;
+        get => _which == WHICH.List ? (Schema.Type.list)_content : null;
         set
         {
             _which = WHICH.List;
@@ -2288,9 +2285,9 @@ internal class Type : ICapnpSerializable
         }
     }
 
-    public Capnp.Schema.Type.@enum Enum
+    public Schema.Type.@enum Enum
     {
-        get => _which == WHICH.Enum ? (Capnp.Schema.Type.@enum)_content : null;
+        get => _which == WHICH.Enum ? (Schema.Type.@enum)_content : null;
         set
         {
             _which = WHICH.Enum;
@@ -2298,9 +2295,9 @@ internal class Type : ICapnpSerializable
         }
     }
 
-    public Capnp.Schema.Type.@struct Struct
+    public Schema.Type.@struct Struct
     {
-        get => _which == WHICH.Struct ? (Capnp.Schema.Type.@struct)_content : null;
+        get => _which == WHICH.Struct ? (Schema.Type.@struct)_content : null;
         set
         {
             _which = WHICH.Struct;
@@ -2308,9 +2305,9 @@ internal class Type : ICapnpSerializable
         }
     }
 
-    public Capnp.Schema.Type.@interface Interface
+    public Schema.Type.@interface Interface
     {
-        get => _which == WHICH.Interface ? (Capnp.Schema.Type.@interface)_content : null;
+        get => _which == WHICH.Interface ? (Schema.Type.@interface)_content : null;
         set
         {
             _which = WHICH.Interface;
@@ -2318,9 +2315,9 @@ internal class Type : ICapnpSerializable
         }
     }
 
-    public Capnp.Schema.Type.anyPointer AnyPointer
+    public Schema.Type.anyPointer AnyPointer
     {
-        get => _which == WHICH.AnyPointer ? (Capnp.Schema.Type.anyPointer)_content : null;
+        get => _which == WHICH.AnyPointer ? (Schema.Type.anyPointer)_content : null;
         set
         {
             _which = WHICH.AnyPointer;
@@ -2393,7 +2390,7 @@ internal class Type : ICapnpSerializable
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            ElementType = CapnpSerializable.Create<Capnp.Schema.Type>(reader.ElementType);
+            ElementType = CapnpSerializable.Create<Schema.Type>(reader.ElementType);
             applyDefaults();
         }
 
@@ -2411,7 +2408,7 @@ internal class Type : ICapnpSerializable
         {
         }
 
-        public Capnp.Schema.Type ElementType
+        public Schema.Type ElementType
         {
             get;
             set;
@@ -2428,7 +2425,7 @@ internal class Type : ICapnpSerializable
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Capnp.Schema.Type.READER ElementType => ctx.ReadStruct(0, Capnp.Schema.Type.READER.create);
+            public Schema.Type.READER ElementType => ctx.ReadStruct(0, Schema.Type.READER.create);
             public bool HasElementType => ctx.IsStructFieldNonNull(0);
         }
 
@@ -2438,9 +2435,9 @@ internal class Type : ICapnpSerializable
             {
             }
 
-            public Capnp.Schema.Type.WRITER ElementType
+            public Schema.Type.WRITER ElementType
             {
-                get => BuildPointer<Capnp.Schema.Type.WRITER>(0);
+                get => BuildPointer<Schema.Type.WRITER>(0);
                 set => Link(0, value);
             }
         }
@@ -2454,7 +2451,7 @@ internal class Type : ICapnpSerializable
         {
             var reader = READER.create(arg_);
             TypeId = reader.TypeId;
-            Brand = CapnpSerializable.Create<Capnp.Schema.Brand>(reader.Brand);
+            Brand = CapnpSerializable.Create<Schema.Brand>(reader.Brand);
             applyDefaults();
         }
 
@@ -2479,7 +2476,7 @@ internal class Type : ICapnpSerializable
             set;
         }
 
-        public Capnp.Schema.Brand Brand
+        public Schema.Brand Brand
         {
             get;
             set;
@@ -2497,7 +2494,7 @@ internal class Type : ICapnpSerializable
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public ulong TypeId => ctx.ReadDataULong(64UL, 0UL);
-            public Capnp.Schema.Brand.READER Brand => ctx.ReadStruct(0, Capnp.Schema.Brand.READER.create);
+            public Schema.Brand.READER Brand => ctx.ReadStruct(0, Schema.Brand.READER.create);
             public bool HasBrand => ctx.IsStructFieldNonNull(0);
         }
 
@@ -2513,9 +2510,9 @@ internal class Type : ICapnpSerializable
                 set => this.WriteData(64UL, value, 0UL);
             }
 
-            public Capnp.Schema.Brand.WRITER Brand
+            public Schema.Brand.WRITER Brand
             {
-                get => BuildPointer<Capnp.Schema.Brand.WRITER>(0);
+                get => BuildPointer<Schema.Brand.WRITER>(0);
                 set => Link(0, value);
             }
         }
@@ -2529,7 +2526,7 @@ internal class Type : ICapnpSerializable
         {
             var reader = READER.create(arg_);
             TypeId = reader.TypeId;
-            Brand = CapnpSerializable.Create<Capnp.Schema.Brand>(reader.Brand);
+            Brand = CapnpSerializable.Create<Schema.Brand>(reader.Brand);
             applyDefaults();
         }
 
@@ -2554,7 +2551,7 @@ internal class Type : ICapnpSerializable
             set;
         }
 
-        public Capnp.Schema.Brand Brand
+        public Schema.Brand Brand
         {
             get;
             set;
@@ -2572,7 +2569,7 @@ internal class Type : ICapnpSerializable
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public ulong TypeId => ctx.ReadDataULong(64UL, 0UL);
-            public Capnp.Schema.Brand.READER Brand => ctx.ReadStruct(0, Capnp.Schema.Brand.READER.create);
+            public Schema.Brand.READER Brand => ctx.ReadStruct(0, Schema.Brand.READER.create);
             public bool HasBrand => ctx.IsStructFieldNonNull(0);
         }
 
@@ -2588,9 +2585,9 @@ internal class Type : ICapnpSerializable
                 set => this.WriteData(64UL, value, 0UL);
             }
 
-            public Capnp.Schema.Brand.WRITER Brand
+            public Schema.Brand.WRITER Brand
             {
-                get => BuildPointer<Capnp.Schema.Brand.WRITER>(0);
+                get => BuildPointer<Schema.Brand.WRITER>(0);
                 set => Link(0, value);
             }
         }
@@ -2604,7 +2601,7 @@ internal class Type : ICapnpSerializable
         {
             var reader = READER.create(arg_);
             TypeId = reader.TypeId;
-            Brand = CapnpSerializable.Create<Capnp.Schema.Brand>(reader.Brand);
+            Brand = CapnpSerializable.Create<Schema.Brand>(reader.Brand);
             applyDefaults();
         }
 
@@ -2629,7 +2626,7 @@ internal class Type : ICapnpSerializable
             set;
         }
 
-        public Capnp.Schema.Brand Brand
+        public Schema.Brand Brand
         {
             get;
             set;
@@ -2647,7 +2644,7 @@ internal class Type : ICapnpSerializable
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public ulong TypeId => ctx.ReadDataULong(64UL, 0UL);
-            public Capnp.Schema.Brand.READER Brand => ctx.ReadStruct(0, Capnp.Schema.Brand.READER.create);
+            public Schema.Brand.READER Brand => ctx.ReadStruct(0, Schema.Brand.READER.create);
             public bool HasBrand => ctx.IsStructFieldNonNull(0);
         }
 
@@ -2663,9 +2660,9 @@ internal class Type : ICapnpSerializable
                 set => this.WriteData(64UL, value, 0UL);
             }
 
-            public Capnp.Schema.Brand.WRITER Brand
+            public Schema.Brand.WRITER Brand
             {
-                get => BuildPointer<Capnp.Schema.Brand.WRITER>(0);
+                get => BuildPointer<Schema.Brand.WRITER>(0);
                 set => Link(0, value);
             }
         }
@@ -2689,13 +2686,13 @@ internal class Type : ICapnpSerializable
             switch (reader.which)
             {
                 case WHICH.Unconstrained:
-                    Unconstrained = CapnpSerializable.Create<Capnp.Schema.Type.anyPointer.unconstrained>(reader.Unconstrained);
+                    Unconstrained = CapnpSerializable.Create<Schema.Type.anyPointer.unconstrained>(reader.Unconstrained);
                     break;
                 case WHICH.Parameter:
-                    Parameter = CapnpSerializable.Create<Capnp.Schema.Type.anyPointer.parameter>(reader.Parameter);
+                    Parameter = CapnpSerializable.Create<Schema.Type.anyPointer.parameter>(reader.Parameter);
                     break;
                 case WHICH.ImplicitMethodParameter:
-                    ImplicitMethodParameter = CapnpSerializable.Create<Capnp.Schema.Type.anyPointer.implicitMethodParameter>(reader.ImplicitMethodParameter);
+                    ImplicitMethodParameter = CapnpSerializable.Create<Schema.Type.anyPointer.implicitMethodParameter>(reader.ImplicitMethodParameter);
                     break;
             }
 
@@ -2753,9 +2750,9 @@ internal class Type : ICapnpSerializable
         {
         }
 
-        public Capnp.Schema.Type.anyPointer.unconstrained Unconstrained
+        public Schema.Type.anyPointer.unconstrained Unconstrained
         {
-            get => _which == WHICH.Unconstrained ? (Capnp.Schema.Type.anyPointer.unconstrained)_content : null;
+            get => _which == WHICH.Unconstrained ? (Schema.Type.anyPointer.unconstrained)_content : null;
             set
             {
                 _which = WHICH.Unconstrained;
@@ -2763,9 +2760,9 @@ internal class Type : ICapnpSerializable
             }
         }
 
-        public Capnp.Schema.Type.anyPointer.parameter Parameter
+        public Schema.Type.anyPointer.parameter Parameter
         {
-            get => _which == WHICH.Parameter ? (Capnp.Schema.Type.anyPointer.parameter)_content : null;
+            get => _which == WHICH.Parameter ? (Schema.Type.anyPointer.parameter)_content : null;
             set
             {
                 _which = WHICH.Parameter;
@@ -2773,9 +2770,9 @@ internal class Type : ICapnpSerializable
             }
         }
 
-        public Capnp.Schema.Type.anyPointer.implicitMethodParameter ImplicitMethodParameter
+        public Schema.Type.anyPointer.implicitMethodParameter ImplicitMethodParameter
         {
-            get => _which == WHICH.ImplicitMethodParameter ? (Capnp.Schema.Type.anyPointer.implicitMethodParameter)_content : null;
+            get => _which == WHICH.ImplicitMethodParameter ? (Schema.Type.anyPointer.implicitMethodParameter)_content : null;
             set
             {
                 _which = WHICH.ImplicitMethodParameter;
@@ -3081,7 +3078,7 @@ internal class Brand : ICapnpSerializable
     void ICapnpSerializable.Deserialize(DeserializerState arg_)
     {
         var reader = READER.create(arg_);
-        Scopes = reader.Scopes?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Brand.Scope>(_));
+        Scopes = reader.Scopes?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Brand.Scope>(_));
         applyDefaults();
     }
 
@@ -3099,7 +3096,7 @@ internal class Brand : ICapnpSerializable
     {
     }
 
-    public IReadOnlyList<Capnp.Schema.Brand.Scope> Scopes
+    public IReadOnlyList<Schema.Brand.Scope> Scopes
     {
         get;
         set;
@@ -3116,7 +3113,7 @@ internal class Brand : ICapnpSerializable
         public static READER create(DeserializerState ctx) => new READER(ctx);
         public static implicit operator DeserializerState(READER reader) => reader.ctx;
         public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-        public IReadOnlyList<Capnp.Schema.Brand.Scope.READER> Scopes => ctx.ReadList(0).Cast(Capnp.Schema.Brand.Scope.READER.create);
+        public IReadOnlyList<Schema.Brand.Scope.READER> Scopes => ctx.ReadList(0).Cast(Schema.Brand.Scope.READER.create);
         public bool HasScopes => ctx.IsStructFieldNonNull(0);
     }
 
@@ -3127,9 +3124,9 @@ internal class Brand : ICapnpSerializable
             this.SetStruct(0, 1);
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.Brand.Scope.WRITER> Scopes
+        public ListOfStructsSerializer<Schema.Brand.Scope.WRITER> Scopes
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Brand.Scope.WRITER>>(0);
+            get => BuildPointer<ListOfStructsSerializer<Schema.Brand.Scope.WRITER>>(0);
             set => Link(0, value);
         }
     }
@@ -3151,7 +3148,7 @@ internal class Brand : ICapnpSerializable
             switch (reader.which)
             {
                 case WHICH.Bind:
-                    Bind = reader.Bind?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Brand.Binding>(_));
+                    Bind = reader.Bind?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Brand.Binding>(_));
                     break;
                 case WHICH.Inherit:
                     which = reader.which;
@@ -3213,9 +3210,9 @@ internal class Brand : ICapnpSerializable
             set;
         }
 
-        public IReadOnlyList<Capnp.Schema.Brand.Binding> Bind
+        public IReadOnlyList<Schema.Brand.Binding> Bind
         {
-            get => _which == WHICH.Bind ? (IReadOnlyList<Capnp.Schema.Brand.Binding>)_content : null;
+            get => _which == WHICH.Bind ? (IReadOnlyList<Schema.Brand.Binding>)_content : null;
             set
             {
                 _which = WHICH.Bind;
@@ -3236,7 +3233,7 @@ internal class Brand : ICapnpSerializable
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public WHICH which => (WHICH)ctx.ReadDataUShort(64U, (ushort)0);
             public ulong ScopeId => ctx.ReadDataULong(0UL, 0UL);
-            public IReadOnlyList<Capnp.Schema.Brand.Binding.READER> Bind => which == WHICH.Bind ? ctx.ReadList(0).Cast(Capnp.Schema.Brand.Binding.READER.create) : default;
+            public IReadOnlyList<Schema.Brand.Binding.READER> Bind => which == WHICH.Bind ? ctx.ReadList(0).Cast(Schema.Brand.Binding.READER.create) : default;
             public bool HasBind => ctx.IsStructFieldNonNull(0);
         }
 
@@ -3259,9 +3256,9 @@ internal class Brand : ICapnpSerializable
                 set => this.WriteData(0UL, value, 0UL);
             }
 
-            public ListOfStructsSerializer<Capnp.Schema.Brand.Binding.WRITER> Bind
+            public ListOfStructsSerializer<Schema.Brand.Binding.WRITER> Bind
             {
-                get => which == WHICH.Bind ? BuildPointer<ListOfStructsSerializer<Capnp.Schema.Brand.Binding.WRITER>>(0) : default;
+                get => which == WHICH.Bind ? BuildPointer<ListOfStructsSerializer<Schema.Brand.Binding.WRITER>>(0) : default;
                 set => Link(0, value);
             }
         }
@@ -3287,7 +3284,7 @@ internal class Brand : ICapnpSerializable
                     which = reader.which;
                     break;
                 case WHICH.Type:
-                    Type = CapnpSerializable.Create<Capnp.Schema.Type>(reader.Type);
+                    Type = CapnpSerializable.Create<Schema.Type>(reader.Type);
                     break;
             }
 
@@ -3337,9 +3334,9 @@ internal class Brand : ICapnpSerializable
         {
         }
 
-        public Capnp.Schema.Type Type
+        public Schema.Type Type
         {
-            get => _which == WHICH.Type ? (Capnp.Schema.Type)_content : null;
+            get => _which == WHICH.Type ? (Schema.Type)_content : null;
             set
             {
                 _which = WHICH.Type;
@@ -3359,7 +3356,7 @@ internal class Brand : ICapnpSerializable
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public WHICH which => (WHICH)ctx.ReadDataUShort(0U, (ushort)0);
-            public Capnp.Schema.Type.READER Type => which == WHICH.Type ? ctx.ReadStruct(0, Capnp.Schema.Type.READER.create) : default;
+            public Schema.Type.READER Type => which == WHICH.Type ? ctx.ReadStruct(0, Schema.Type.READER.create) : default;
             public bool HasType => ctx.IsStructFieldNonNull(0);
         }
 
@@ -3376,9 +3373,9 @@ internal class Brand : ICapnpSerializable
                 set => this.WriteData(0U, (ushort)value, (ushort)0);
             }
 
-            public Capnp.Schema.Type.WRITER Type
+            public Schema.Type.WRITER Type
             {
-                get => which == WHICH.Type ? BuildPointer<Capnp.Schema.Type.WRITER>(0) : default;
+                get => which == WHICH.Type ? BuildPointer<Schema.Type.WRITER>(0) : default;
                 set => Link(0, value);
             }
         }
@@ -3949,8 +3946,8 @@ internal class Annotation : ICapnpSerializable
     {
         var reader = READER.create(arg_);
         Id = reader.Id;
-        Value = CapnpSerializable.Create<Capnp.Schema.Value>(reader.Value);
-        Brand = CapnpSerializable.Create<Capnp.Schema.Brand>(reader.Brand);
+        Value = CapnpSerializable.Create<Schema.Value>(reader.Value);
+        Brand = CapnpSerializable.Create<Schema.Brand>(reader.Brand);
         applyDefaults();
     }
 
@@ -3976,13 +3973,13 @@ internal class Annotation : ICapnpSerializable
         set;
     }
 
-    public Capnp.Schema.Value Value
+    public Schema.Value Value
     {
         get;
         set;
     }
 
-    public Capnp.Schema.Brand Brand
+    public Schema.Brand Brand
     {
         get;
         set;
@@ -4000,9 +3997,9 @@ internal class Annotation : ICapnpSerializable
         public static implicit operator DeserializerState(READER reader) => reader.ctx;
         public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
         public ulong Id => ctx.ReadDataULong(0UL, 0UL);
-        public Capnp.Schema.Value.READER Value => ctx.ReadStruct(0, Capnp.Schema.Value.READER.create);
+        public Schema.Value.READER Value => ctx.ReadStruct(0, Schema.Value.READER.create);
         public bool HasValue => ctx.IsStructFieldNonNull(0);
-        public Capnp.Schema.Brand.READER Brand => ctx.ReadStruct(1, Capnp.Schema.Brand.READER.create);
+        public Schema.Brand.READER Brand => ctx.ReadStruct(1, Schema.Brand.READER.create);
         public bool HasBrand => ctx.IsStructFieldNonNull(1);
     }
 
@@ -4019,15 +4016,15 @@ internal class Annotation : ICapnpSerializable
             set => this.WriteData(0UL, value, 0UL);
         }
 
-        public Capnp.Schema.Value.WRITER Value
+        public Schema.Value.WRITER Value
         {
-            get => BuildPointer<Capnp.Schema.Value.WRITER>(0);
+            get => BuildPointer<Schema.Value.WRITER>(0);
             set => Link(0, value);
         }
 
-        public Capnp.Schema.Brand.WRITER Brand
+        public Schema.Brand.WRITER Brand
         {
-            get => BuildPointer<Capnp.Schema.Brand.WRITER>(1);
+            get => BuildPointer<Schema.Brand.WRITER>(1);
             set => Link(1, value);
         }
     }
@@ -4143,10 +4140,10 @@ internal class CodeGeneratorRequest : ICapnpSerializable
     void ICapnpSerializable.Deserialize(DeserializerState arg_)
     {
         var reader = READER.create(arg_);
-        Nodes = reader.Nodes?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Node>(_));
-        RequestedFiles = reader.RequestedFiles?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.CodeGeneratorRequest.RequestedFile>(_));
-        CapnpVersion = CapnpSerializable.Create<Capnp.Schema.CapnpVersion>(reader.CapnpVersion);
-        SourceInfo = reader.SourceInfo?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.Node.SourceInfo>(_));
+        Nodes = reader.Nodes?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Node>(_));
+        RequestedFiles = reader.RequestedFiles?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.CodeGeneratorRequest.RequestedFile>(_));
+        CapnpVersion = CapnpSerializable.Create<Schema.CapnpVersion>(reader.CapnpVersion);
+        SourceInfo = reader.SourceInfo?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.Node.SourceInfo>(_));
         applyDefaults();
     }
 
@@ -4167,25 +4164,25 @@ internal class CodeGeneratorRequest : ICapnpSerializable
     {
     }
 
-    public IReadOnlyList<Capnp.Schema.Node> Nodes
+    public IReadOnlyList<Schema.Node> Nodes
     {
         get;
         set;
     }
 
-    public IReadOnlyList<Capnp.Schema.CodeGeneratorRequest.RequestedFile> RequestedFiles
+    public IReadOnlyList<Schema.CodeGeneratorRequest.RequestedFile> RequestedFiles
     {
         get;
         set;
     }
 
-    public Capnp.Schema.CapnpVersion CapnpVersion
+    public Schema.CapnpVersion CapnpVersion
     {
         get;
         set;
     }
 
-    public IReadOnlyList<Capnp.Schema.Node.SourceInfo> SourceInfo
+    public IReadOnlyList<Schema.Node.SourceInfo> SourceInfo
     {
         get;
         set;
@@ -4202,13 +4199,13 @@ internal class CodeGeneratorRequest : ICapnpSerializable
         public static READER create(DeserializerState ctx) => new READER(ctx);
         public static implicit operator DeserializerState(READER reader) => reader.ctx;
         public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-        public IReadOnlyList<Capnp.Schema.Node.READER> Nodes => ctx.ReadList(0).Cast(Capnp.Schema.Node.READER.create);
+        public IReadOnlyList<Schema.Node.READER> Nodes => ctx.ReadList(0).Cast(Schema.Node.READER.create);
         public bool HasNodes => ctx.IsStructFieldNonNull(0);
-        public IReadOnlyList<Capnp.Schema.CodeGeneratorRequest.RequestedFile.READER> RequestedFiles => ctx.ReadList(1).Cast(Capnp.Schema.CodeGeneratorRequest.RequestedFile.READER.create);
+        public IReadOnlyList<Schema.CodeGeneratorRequest.RequestedFile.READER> RequestedFiles => ctx.ReadList(1).Cast(Schema.CodeGeneratorRequest.RequestedFile.READER.create);
         public bool HasRequestedFiles => ctx.IsStructFieldNonNull(1);
-        public Capnp.Schema.CapnpVersion.READER CapnpVersion => ctx.ReadStruct(2, Capnp.Schema.CapnpVersion.READER.create);
+        public Schema.CapnpVersion.READER CapnpVersion => ctx.ReadStruct(2, Schema.CapnpVersion.READER.create);
         public bool HasCapnpVersion => ctx.IsStructFieldNonNull(2);
-        public IReadOnlyList<Capnp.Schema.Node.SourceInfo.READER> SourceInfo => ctx.ReadList(3).Cast(Capnp.Schema.Node.SourceInfo.READER.create);
+        public IReadOnlyList<Schema.Node.SourceInfo.READER> SourceInfo => ctx.ReadList(3).Cast(Schema.Node.SourceInfo.READER.create);
         public bool HasSourceInfo => ctx.IsStructFieldNonNull(3);
     }
 
@@ -4219,27 +4216,27 @@ internal class CodeGeneratorRequest : ICapnpSerializable
             this.SetStruct(0, 4);
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.Node.WRITER> Nodes
+        public ListOfStructsSerializer<Schema.Node.WRITER> Nodes
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Node.WRITER>>(0);
+            get => BuildPointer<ListOfStructsSerializer<Schema.Node.WRITER>>(0);
             set => Link(0, value);
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.CodeGeneratorRequest.RequestedFile.WRITER> RequestedFiles
+        public ListOfStructsSerializer<Schema.CodeGeneratorRequest.RequestedFile.WRITER> RequestedFiles
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.CodeGeneratorRequest.RequestedFile.WRITER>>(1);
+            get => BuildPointer<ListOfStructsSerializer<Schema.CodeGeneratorRequest.RequestedFile.WRITER>>(1);
             set => Link(1, value);
         }
 
-        public Capnp.Schema.CapnpVersion.WRITER CapnpVersion
+        public Schema.CapnpVersion.WRITER CapnpVersion
         {
-            get => BuildPointer<Capnp.Schema.CapnpVersion.WRITER>(2);
+            get => BuildPointer<Schema.CapnpVersion.WRITER>(2);
             set => Link(2, value);
         }
 
-        public ListOfStructsSerializer<Capnp.Schema.Node.SourceInfo.WRITER> SourceInfo
+        public ListOfStructsSerializer<Schema.Node.SourceInfo.WRITER> SourceInfo
         {
-            get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.Node.SourceInfo.WRITER>>(3);
+            get => BuildPointer<ListOfStructsSerializer<Schema.Node.SourceInfo.WRITER>>(3);
             set => Link(3, value);
         }
     }
@@ -4253,7 +4250,7 @@ internal class CodeGeneratorRequest : ICapnpSerializable
             var reader = READER.create(arg_);
             Id = reader.Id;
             Filename = reader.Filename;
-            Imports = reader.Imports?.ToReadOnlyList(_ => CapnpSerializable.Create<Capnp.Schema.CodeGeneratorRequest.RequestedFile.Import>(_));
+            Imports = reader.Imports?.ToReadOnlyList(_ => CapnpSerializable.Create<Schema.CodeGeneratorRequest.RequestedFile.Import>(_));
             applyDefaults();
         }
 
@@ -4285,7 +4282,7 @@ internal class CodeGeneratorRequest : ICapnpSerializable
             set;
         }
 
-        public IReadOnlyList<Capnp.Schema.CodeGeneratorRequest.RequestedFile.Import> Imports
+        public IReadOnlyList<Schema.CodeGeneratorRequest.RequestedFile.Import> Imports
         {
             get;
             set;
@@ -4304,7 +4301,7 @@ internal class CodeGeneratorRequest : ICapnpSerializable
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public ulong Id => ctx.ReadDataULong(0UL, 0UL);
             public string Filename => ctx.ReadText(0, null);
-            public IReadOnlyList<Capnp.Schema.CodeGeneratorRequest.RequestedFile.Import.READER> Imports => ctx.ReadList(1).Cast(Capnp.Schema.CodeGeneratorRequest.RequestedFile.Import.READER.create);
+            public IReadOnlyList<Schema.CodeGeneratorRequest.RequestedFile.Import.READER> Imports => ctx.ReadList(1).Cast(Schema.CodeGeneratorRequest.RequestedFile.Import.READER.create);
             public bool HasImports => ctx.IsStructFieldNonNull(1);
         }
 
@@ -4327,9 +4324,9 @@ internal class CodeGeneratorRequest : ICapnpSerializable
                 set => this.WriteText(0, value, null);
             }
 
-            public ListOfStructsSerializer<Capnp.Schema.CodeGeneratorRequest.RequestedFile.Import.WRITER> Imports
+            public ListOfStructsSerializer<Schema.CodeGeneratorRequest.RequestedFile.Import.WRITER> Imports
             {
-                get => BuildPointer<ListOfStructsSerializer<Capnp.Schema.CodeGeneratorRequest.RequestedFile.Import.WRITER>>(1);
+                get => BuildPointer<ListOfStructsSerializer<Schema.CodeGeneratorRequest.RequestedFile.Import.WRITER>>(1);
                 set => Link(1, value);
             }
         }
