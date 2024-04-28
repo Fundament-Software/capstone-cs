@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fundament.Capstone.CodeGen", "Fundament.Capstone.Compiler\Fundament.Capstone.CodeGen.csproj", "{FDC925A6-9874-46E0-8F80-BC8201F1AC63}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fundament.Capstone.Runtime", "Fundament.Capstone.Runtime\Fundament.Capstone.Runtime.csproj", "{471547A3-9396-480B-A06F-C5F54B6D1C8C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,5 +29,17 @@ Global
 		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Release|x64.Build.0 = Release|Any CPU
 		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Release|x86.ActiveCfg = Release|Any CPU
 		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Release|x86.Build.0 = Release|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Debug|x64.Build.0 = Debug|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Debug|x86.Build.0 = Debug|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Release|x64.ActiveCfg = Release|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Release|x64.Build.0 = Release|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Release|x86.ActiveCfg = Release|Any CPU
+		{471547A3-9396-480B-A06F-C5F54B6D1C8C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
