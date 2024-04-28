@@ -1,4 +1,4 @@
-namespace Fundament.CapstoneCS.CodeGen.Compiler.Schema;
+namespace Fundament.Capstone.Compiler.Schema;
 
 using Capnp;
 using System;

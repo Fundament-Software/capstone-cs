@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fundament.Capstone.CodeGen", "Fundament.Capstone.Compiler\Fundament.Capstone.CodeGen.csproj", "{FDC925A6-9874-46E0-8F80-BC8201F1AC63}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Debug|x64.Build.0 = Debug|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Debug|x86.Build.0 = Debug|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Release|x64.ActiveCfg = Release|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Release|x64.Build.0 = Release|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Release|x86.ActiveCfg = Release|Any CPU
+		{FDC925A6-9874-46E0-8F80-BC8201F1AC63}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
