@@ -3,6 +3,7 @@ source https://api.nuget.org/v3/index.json
 storage: none
 
 nuget CommunityToolkit.HighPerformance ~> 8.2
+nuget Microsoft.Extensions.Logging ~> 8.0
 
 // Test Dependencies
 nuget coverlet.collector
