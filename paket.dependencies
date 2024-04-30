@@ -2,9 +2,9 @@ source https://api.nuget.org/v3/index.json
 
 storage: none
 
-group TestProject
-source https://www.nuget.org/api/v2
+nuget CommunityToolkit.HighPerformance ~> 8.2
 
+// Test Dependencies
 nuget coverlet.collector
 nuget Microsoft.NET.Test.Sdk
 nuget xunit
