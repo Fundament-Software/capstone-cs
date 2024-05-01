@@ -1,0 +1,1 @@
+namespace Fundament.Capstone.Runtime;
