@@ -1,11 +1,9 @@
 namespace Fundament.Capstone.Runtime;
 
-using System.Buffers;
 using System.Runtime.CompilerServices;
 
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
-using CommunityToolkit.HighPerformance.Helpers;
 
 using Fundament.Capstone.Runtime.Logging;
 
@@ -20,68 +18,92 @@ public class StreamMessageReader(Stream byteStream, ILogger<StreamMessageReader>
 {
     private const uint SegmentLimit = 512;
 
-    private const ulong traversalLimitInWords = 8 * 1024 * 1024;
+    private const ulong TraversalLimitInWords = 8 * 1024 * 1024;
+
+    private const int SkipBufferSizeInWords = 512;
 
     private readonly Stream byteStream = byteStream;
 
     private readonly ILogger<StreamMessageReader> logger = logger;
 
 
-    public async ValueTask ReadMessageAsync(CancellationToken cancellationToken = default)
+    public async ValueTask<object?> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
-        var (segmentCount, firstSegmentSize) = await this.ReadSegmentTableHeaderAsync(cancellationToken);
+        // According to the cap'n proto spec, the first word of the message is the number of segments minus one (since there is always one segment for the root object)
+        var segmentCount = await this.byteStream.ReadUInt32Async(cancellationToken) + 1;
 
-        this.logger.LogSegmentTableHeader(segmentCount, firstSegmentSize);
-
-        // First line of security: chech the segment count is within reasonable limits
-        // A malicious sender could send a message with a UINT_MAX segment count,
-        // which would mean we would have to allocate and read UINT_MAX uints (about 16 GB of memory) for the segment size table.
-        // When we hit the limit, we set segmentCount and segmentSize to default values
-        // Which will probably cause the message and subsequent messages to fail parsing.
-        if (segmentCount < SegmentLimit) {
+        if (SegmentCountOverLimit(segmentCount)) {
             this.logger.LogSegmentExceedesThreshold(segmentCount, SegmentLimit);
-            segmentCount = 1;
-            firstSegmentSize = 1;
+            var skippedMessageSize = await this.SkipMessageOverSegmentCountLimit(segmentCount, cancellationToken);
+            this.logger.LogSkipMessage(skippedMessageSize, segmentCount);
+            return null;
         }
 
-        
+        using var segmentSizes = await this.ReadSegmentSizesAsync(segmentCount, cancellationToken);
+        var messageSize = SumUIntSpan(segmentSizes.Span);
+
+        if (MessageCountOverLimit(messageSize)) {
+            await this.SkipMessage(messageSize, cancellationToken);
+            this.logger.LogSkipMessage(messageSize, segmentCount);
+            return null;
+        }
     }
 
-    private async ValueTask<(uint SegmentCount, uint FirstSegmentSize)> ReadSegmentTableHeaderAsync(CancellationToken cancellationToken)
-    {
-        // I'm pretty sure that copying two ints for return is cheap, so allocate memory here and dispose it after the return.
-        using var buffer = MemoryOwner<uint>.Allocate(2);
-        await this.byteStream.ReadExactlyAsync(buffer.Memory.AsBytes(), cancellationToken);
+    private async ValueTask<MemoryOwner<uint>> ReadSegmentSizesAsync(uint segmentCount, CancellationToken cancellationToken) => 
+        segmentCount == 0
+            ? MemoryOwner<uint>.Empty 
+            : await this.byteStream.ReadUInt32ArrayAsync(segmentCount, cancellationToken);
 
-        // Number of segments + 1
-        var segmentCount = buffer.Span[0] + 1;
-        return (segmentCount, buffer.Span[1]);
-    }
+    /// <summary>
+    /// Skips a message that has more segments than the limit.
+    /// </summary>
+    /// <param name="segmentCount"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The size of the message skiped in words.</returns>
+    private async ValueTask<uint> SkipMessageOverSegmentCountLimit(uint segmentCount, CancellationToken cancellationToken) {
+        uint messageSize = 0;
+        var segmentSizesRead = 0;
+        using var sizesBuffer = MemoryOwner<uint>.Allocate(512);
+        while (segmentSizesRead < segmentCount) {
+            cancellationToken.ThrowIfCancellationRequested();
 
-    private async ValueTask<MemoryOwner<uint>> ReadSegmentSizesAsync(uint segmentCount, CancellationToken cancellationToken)
-    {
-        var remainingSegmentCount = segmentCount - 1;
+            var segmentsToRead = Math.Min((int)segmentCount - segmentSizesRead, sizesBuffer.Length);
+            await this.byteStream.ReadExactlyAsync(sizesBuffer.Memory[..segmentsToRead].AsBytes(), cancellationToken);
 
-        if (remainingSegmentCount == 0) {
-            return MemoryOwner<uint>.Empty;
+            segmentSizesRead += segmentsToRead;
+            messageSize += SumUIntSpan(sizesBuffer.Span[..segmentsToRead]);
         }
 
-        // This cast should be compeletely safe, as we have already checked that segmentCount is less than SegmentLimit
-        var segmentSizes = MemoryOwner<uint>.Allocate((int)remainingSegmentCount);
-        
-        await this.byteStream.ReadExactlyAsync(segmentSizes.Memory.AsBytes(), cancellationToken);
+        await this.SkipMessage(messageSize, cancellationToken);
 
-        return segmentSizes;
+        return messageSize;
     }
 
-    private static uint ComputeTotalWords(uint firstSegmentSize, ReadOnlySpan<uint> segmentSizes)
-    {
-        var totalWords = firstSegmentSize;
+    private async ValueTask SkipMessage(uint messageSize, CancellationToken cancellationToken) {
+        using var buffer = MemoryOwner<Word>.Allocate(512);
 
-        for (var i = 0; i < segmentSizes.Length; i++) {
-            totalWords += segmentSizes[i];
+        while (messageSize > 0) {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var wordsToRead = Math.Min((int)messageSize, buffer.Length);
+            await this.byteStream.ReadExactlyAsync(buffer.Memory[..wordsToRead].AsBytes(), cancellationToken);
+
+            messageSize -= (uint)wordsToRead;
         }
+    }
 
+    private static uint SumUIntSpan(ReadOnlySpan<uint> span) {
+        uint totalWords = 0;
+        for (var i = 0; i < span.Length; i++) {
+            totalWords += span[i];
+        }
         return totalWords;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool SegmentCountOverLimit(uint segmentCount) => segmentCount > SegmentLimit;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool MessageCountOverLimit(uint messageSize) => messageSize > TraversalLimitInWords;
+
 }
