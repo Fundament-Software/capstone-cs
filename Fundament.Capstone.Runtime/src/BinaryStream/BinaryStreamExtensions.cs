@@ -1,10 +1,11 @@
-namespace Fundament.Capstone.Runtime;
+namespace Fundament.Capstone.Runtime.BinaryStream;
 
 using System.Buffers.Binary;
 
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
+using Word = UInt64;
 
 /// <summary>
 /// Extensions for <see cref="Stream"/> that work with binary data.
@@ -31,6 +32,22 @@ internal static class BinaryStreamExtensions {
         cancellationToken.ThrowIfCancellationRequested();
 
         var buffer = MemoryOwner<uint>.Allocate((int)count);
+        await stream.ReadExactlyAsync(buffer.Memory.AsBytes(), cancellationToken);
+        return buffer;
+    }
+
+    /// <summary>
+    /// Reads exactly <paramref name="count"/> Cap'n Proto words (defined as unsigned 64-bit ints) from the stream.
+    /// Like <see cref="ReadUInt32ArrayAsync"/>, this method allocates a buffer from a pool, and the caller assumes ownership of the buffer, and is responsible for disposing it.
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="count"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public static async ValueTask<MemoryOwner<Word>> ReadWordsAsync(this Stream stream, uint count, CancellationToken cancellationToken = default) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var buffer = MemoryOwner<Word>.Allocate((int)count);
         await stream.ReadExactlyAsync(buffer.Memory.AsBytes(), cancellationToken);
         return buffer;
     }
