@@ -49,6 +49,7 @@ public class StreamMessageReader(Stream byteStream, ILogger<StreamMessageReader>
         for (var i = 0; i < segmentCount; i++) {
             var segmentSize = segmentSizes.Span[i];
             segments[i] = await this.byteStream.ReadWordsAsync(segmentSize, cancellationToken);
+            this.logger.LogReadSegment(i, segmentSize);
         }
 
         return new MessageFrame(segments);

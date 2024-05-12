@@ -37,4 +37,10 @@ internal static partial class LogMessages
         Level = LogLevel.Warning,
         Message = "Unexpected padding values {PaddingValue}, should be 0 or 4.")]
     internal static partial void LogUnexpectedPaddingValues(this ILogger<StreamMessageReader> logger, uint paddingValue);
+
+    [LoggerMessage(
+        EventName = "ReadSegment",
+        Level = LogLevel.Trace,
+        Message = "Read {SegmentSize} words for segment {SegmentIndex}.")]
+    internal static partial void LogReadSegment(this ILogger<StreamMessageReader> logger, int segmentIndex, uint segmentSize);
 }
