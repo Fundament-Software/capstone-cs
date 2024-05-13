@@ -13,7 +13,7 @@ public class MessageStreamReaderTests(ITestOutputHelper outputHelper)
     /// A simple message with a single segment containing a single 64-bit word, which is a pointer to a zero-sized struct for the root object.
     /// </summary>
     public static readonly ImmutableArray<byte> SingleEmptyMessage = [
-            0x01, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
             0x01, 0x00, 0x00, 0x00,
             0x3F, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         ];
