@@ -11,7 +11,7 @@ internal static partial class LogMessages
     [LoggerMessage(
         EventName = "ReadSegmentTable",
         Level = LogLevel.Debug,
-        Message = "Read segment table header: {SegmentCount} segments, {MessageSize} words.")]
+        Message = "Read segment table: {SegmentCount} segments, {MessageSize} words.")]
     internal static partial void LogSegmentTable(this ILogger<StreamMessageReader> logger, uint segmentCount, uint messageSize);
 
     [LoggerMessage(
