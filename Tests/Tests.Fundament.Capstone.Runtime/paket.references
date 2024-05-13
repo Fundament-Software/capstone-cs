@@ -1,6 +1,7 @@
 coverlet.collector
-xunit
-xunit.analyzers
-MartinCostello.Logging.XUnit
 FluentAssertions
 FluentAssertions.Analyzers
+MartinCostello.Logging.XUnit
+xunit
+xunit.analyzers
+xunit.runner.visualstudio
