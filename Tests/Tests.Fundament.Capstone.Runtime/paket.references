@@ -1,0 +1,6 @@
+coverlet.collector
+xunit
+xunit.analyzers
+MartinCostello.Logging.XUnit
+FluentAssertions
+FluentAssertions.Analyzers

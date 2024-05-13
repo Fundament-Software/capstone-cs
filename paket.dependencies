@@ -7,6 +7,9 @@ nuget Microsoft.Extensions.Logging ~> 8.0
 
 // Test Dependencies
 nuget coverlet.collector
+nuget FluentAssertions
+nuget FluentAssertions.Analyzers
+nuget MartinCostello.Logging.XUnit
 nuget Microsoft.NET.Test.Sdk
 nuget xunit
 nuget xunit.runner.visualstudio
