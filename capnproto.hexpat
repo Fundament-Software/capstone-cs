@@ -11,14 +11,14 @@ bitfield Bit { b: 1; };
 namespace SpecialWords {
     bitfield StructPointer {
         A: 2 [[comment("Always 0")]];
-        Offset: 30 [[comment("Offset in words from the end of the pointer to the start of the struct's data section. Signed")]];
+        signed Offset: 30 [[comment("Offset in words from the end of the pointer to the start of the struct's data section. Signed")]];
         DataSectionSize: 16 [[comment("Size of the struct's data section in words.")]];
         PointerSectionSize: 16 [[comment("Size of the struct's data section in words.")]];
     } [[color("FF964F"), format("SpecialWords::format_struct_pointer")]];
     
     bitfield ListPointer {
         A: 2; // Always 1
-        Offset: 30;
+        signed Offset: 30;
         ElementSize: 3;
         ListSize: 29;
     } [[color("A7C7E7"), format("SpecialWords::format_list_pointer")]];
@@ -130,8 +130,8 @@ struct StructContent<auto DataSize, auto PointerSize> {
 
 struct StructPointer {
     SpecialWords::StructPointer ptrWord;
-    bool isNull = (ptrWord.Offset + ptrWord.DataSectionSize + ptrWord.PointerSectionSize) == 0;
-    bool isEmpty = (ptrWord.Offset == -1) && ((ptrWord.DataSectionSize + ptrWord.PointerSectionSize) == 0);
+    bool isNull = (ptrWord.Offset | ptrWord.DataSectionSize | ptrWord.PointerSectionSize) == 0;
+    bool isEmpty = (ptrWord.Offset == -1) && ((ptrWord.DataSectionSize | ptrWord.PointerSectionSize) == 0);
     
     if (!isNull && !isEmpty)
         StructContent<ptrWord.DataSectionSize, ptrWord.PointerSectionSize> content @ calc_offset(ptrWord) [[inline]];
