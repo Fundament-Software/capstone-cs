@@ -16,9 +16,9 @@ using Word = UInt64;
 /// This object does not contain the segment table, only the segments themselves, as the count and size are properties of the segment array and the segments themselves.
 /// </remarks>
 /// <param name="Segments"></param>
-public readonly record struct MessageFrame(MemoryOwner<Word>[] Segments) : IDisposable, IReadOnlyCollection<Memory<Word>>
+public readonly record struct MessageFrame(MemoryOwner<Word>[] Segments) : IDisposable, IEnumerable<Memory<Word>>
 {
-    public readonly int Count => this.Segments.Length;
+    public readonly int SegmentCount => this.Segments.Length;
 
     public readonly Memory<Word> this[int index] => this.Segments[index].Memory;
 
