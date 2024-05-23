@@ -16,7 +16,7 @@ using Word = UInt64;
 /// This object does not contain the segment table, only the segments themselves, as the count and size are properties of the segment array and the segments themselves.
 /// </remarks>
 /// <param name="Segments"></param>
-public readonly record struct MessageFrame(MemoryOwner<Word>[] Segments) : IDisposable, IEnumerable<Memory<Word>>
+public readonly record struct MessageFrameOwner(MemoryOwner<Word>[] Segments) : IDisposable
 {
     public readonly int SegmentCount => this.Segments.Length;
 
@@ -29,7 +29,4 @@ public readonly record struct MessageFrame(MemoryOwner<Word>[] Segments) : IDisp
             segment.Dispose();
         }
     }
-
-    public readonly IEnumerator<Memory<ulong>> GetEnumerator() => this.Segments.Select(segment => segment.Memory).GetEnumerator();
-    readonly IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 }

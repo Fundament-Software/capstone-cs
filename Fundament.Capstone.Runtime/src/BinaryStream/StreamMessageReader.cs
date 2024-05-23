@@ -23,7 +23,7 @@ public class StreamMessageReader(Stream byteStream, ILogger<StreamMessageReader>
 
     private readonly ILogger<StreamMessageReader> logger = logger;
 
-    public async ValueTask<MessageFrame> ReadMessageAsync(CancellationToken cancellationToken = default)
+    public async ValueTask<MessageFrameOwner> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
         // According to the cap'n proto spec, the first word of the message is the number of segments minus one (since there is always one segment for the root object)
         var segmentCount = await this.byteStream.ReadUInt32Async(cancellationToken) + 1;
@@ -52,7 +52,7 @@ public class StreamMessageReader(Stream byteStream, ILogger<StreamMessageReader>
             this.logger.LogReadSegment(i, segmentSize);
         }
 
-        return new MessageFrame(segments);
+        return new(segments);
     }
 
     private async ValueTask<MemoryOwner<uint>> ReadSegmentSizesAsync(uint segmentCount, CancellationToken cancellationToken) => 
