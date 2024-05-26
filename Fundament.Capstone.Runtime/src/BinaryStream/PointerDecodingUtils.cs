@@ -19,7 +19,7 @@ internal enum PointerType : byte
     Capability = 3
 }
 
-public static class SegmentDecoder
+public static class PointerDecodingUtils
 {
     /// <summary>
     /// Decodes the struct pointer at the given index in the segment.
