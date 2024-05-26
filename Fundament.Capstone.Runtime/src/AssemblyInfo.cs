@@ -1,0 +1,1 @@
+global using Word = System.UInt64;

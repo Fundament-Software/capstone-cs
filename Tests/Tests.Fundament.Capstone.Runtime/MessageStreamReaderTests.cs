@@ -6,8 +6,6 @@ using FluentAssertions.Execution;
 
 using global::Fundament.Capstone.Runtime.BinaryStream;
 
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
-
 using Xunit.Abstractions;
 
 public class MessageStreamReaderTests(ITestOutputHelper outputHelper)

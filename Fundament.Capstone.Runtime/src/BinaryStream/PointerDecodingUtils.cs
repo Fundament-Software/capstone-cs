@@ -4,21 +4,6 @@ using CommunityToolkit.Diagnostics;
 
 using Fundament.Capstone.Runtime.Exceptions;
 
-using Word = UInt64;
-
-/// <summary>
-/// Enum of tag values for pointer types in cap'n proto messages.
-/// These are the least significant 2 bits of a pointer word.
-/// This enum is mostly to avoid magic numbers in the SegmentDecoder code.
-/// </summary>
-internal enum PointerType : byte
-{
-    Struct = 0,
-    List = 1,
-    Far = 2,
-    Capability = 3
-}
-
 public static class PointerDecodingUtils
 {
     /// <summary>
@@ -161,52 +146,3 @@ public static class PointerDecodingUtils
             : word;
     }
 }
-
-/// <summary>
-/// Decoded value of a struct pointer in a cap'n proto message.
-/// </summary>
-/// <param name="Offset">The offset, in words from the end of the pointer to the start of the struct's data section. Signed.</param>
-/// <param name="DataSize">Size of the struct's data section, in words. </param>
-/// <param name="PointerSize">Size of the struct's pointer section, in words.</param>
-public readonly record struct StructPointer(int Offset, ushort DataSize, ushort PointerSize);
-
-public enum ListElementType : byte
-{
-    Void = 0,
-    Bit = 1,
-    Byte = 2,
-    TwoBytes = 3,
-    FourBytes = 4,
-    EightBytes = 5,
-    EightBytesPointer = 6,
-    Composite = 7
-}
-
-/// <summary>
-/// Decoded value of a list pointer in a cap'n proto message.
-/// </summary>
-/// <param name="Offset">The offset, in words from the end of the pointer to the start of the struct's data section. Signed.</param>
-/// <param name="ElementSize">The size of each element in the list.</param>
-/// <param name="Size">
-///     The size of the list.
-///     For all values where ElementSize is not 7, the size is the number of elements in the list.
-///     For ElementSize 7, the size is the number of words in the list, not including the tag word that prefixes the list content.
-/// </param>
-public readonly record struct ListPointer(int Offset, ListElementType ElementSize, uint Size)
-{
-    public bool IsComposite => this.ElementSize == ListElementType.Composite;
-}
-
-/// <summary>
-/// Decoded value of a far pointer in a cap'n proto message.
-/// </summary>
-/// <param name="IsDoubleFar">
-///     Identifies the type of the pointer target.
-///     If false, the target is a regular intra-segment pointer.
-///     If true, the target is another far pointer followed by a tag word.
-/// </param>
-/// <param name="Offset">The offset, in words, from the start of the target segment to the location of the far-pointer landing-pad.</param>
-/// <param name="SegmentId">The id of the target segment.</param>
-public readonly record struct FarPointer(bool IsDoubleFar, uint Offset, uint SegmentId);
-
-public readonly record struct CapabilityPointer(int CapabilityTableOffset);
