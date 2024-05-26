@@ -5,8 +5,6 @@ using System.Buffers.Binary;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
-using Word = UInt64;
-
 /// <summary>
 /// Extensions for <see cref="Stream"/> that work with binary data.
 /// Integers are read in little-endian format.

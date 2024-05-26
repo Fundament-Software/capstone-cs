@@ -6,8 +6,6 @@ using CommunityToolkit.HighPerformance.Buffers;
 using Fundament.Capstone.Runtime.Logging;
 using Microsoft.Extensions.Logging;
 
-using Word = UInt64;
-
 /// <summary>
 /// Reads cap'n proto messages from a stream, using the recommended bytestream framing (https://capnproto.org/encoding.html#serialization-over-a-stream)
 /// </summary>

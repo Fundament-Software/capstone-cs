@@ -3,8 +3,6 @@ namespace Fundament.Capstone.Runtime.Exceptions;
 using System.Globalization;
 using System.Text;
 
-using Word = UInt64;
-
 /// <summary>
 /// Base class for exceptions thrown during decoding.
 /// </summary>

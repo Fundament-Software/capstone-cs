@@ -1,10 +1,7 @@
 namespace Fundament.Capstone.Runtime.BinaryStream;
 
-using System.Collections;
-
 using CommunityToolkit.HighPerformance.Buffers;
 
-using Word = UInt64;
 
 /// <summary>
 /// Represents a message cap'n proto message frame, as a sequence of segments.
