@@ -1,6 +1,6 @@
 namespace Fundament.Capstone.Runtime.Logging;
 
-using Fundament.Capstone.Runtime.BinaryStream;
+using Fundament.Capstone.Runtime.MessageStream;
 using Microsoft.Extensions.Logging;
 
 /// <summary>

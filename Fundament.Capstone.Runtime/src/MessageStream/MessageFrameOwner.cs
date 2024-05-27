@@ -1,4 +1,4 @@
-namespace Fundament.Capstone.Runtime.BinaryStream;
+namespace Fundament.Capstone.Runtime.MessageStream;
 
 using CommunityToolkit.HighPerformance.Buffers;
 

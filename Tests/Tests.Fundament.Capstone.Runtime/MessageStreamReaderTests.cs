@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 using FluentAssertions.Execution;
 
-using global::Fundament.Capstone.Runtime.BinaryStream;
+using global::Fundament.Capstone.Runtime.MessageStream;
 
 using Xunit.Abstractions;
 

@@ -2,7 +2,7 @@ namespace Tests.Fundament.Capstone.Runtime;
 
 using FluentAssertions.Execution;
 
-using global::Fundament.Capstone.Runtime.BinaryStream;
+using global::Fundament.Capstone.Runtime.MessageStream;
 
 public class PointerDecodingTests
 {
