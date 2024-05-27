@@ -38,15 +38,23 @@ internal static class BinaryStreamExtensions {
     /// Reads exactly <paramref name="count"/> Cap'n Proto words (defined as unsigned 64-bit ints) from the stream.
     /// Like <see cref="ReadUInt32ArrayAsync"/>, this method allocates a buffer from a pool, and the caller assumes ownership of the buffer, and is responsible for disposing it.
     /// </summary>
-    /// <param name="stream"></param>
-    /// <param name="count"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
     public static async ValueTask<MemoryOwner<Word>> ReadWordsAsync(this Stream stream, uint count, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
 
         var buffer = MemoryOwner<Word>.Allocate((int)count);
         await stream.ReadExactlyAsync(buffer.Memory.AsBytes(), cancellationToken);
+        return buffer;
+    }
+
+    /// <summary>
+    /// Reads exactly <paramref name="count"/> Cap'n Proto words (defined as unsigned 64-bit ints) from the stream.
+    /// This method does not allocate a buffer from a pool, and instead returns an array of words.
+    /// </summary>
+    public static async ValueTask<Word[]> ReadWordsArrayAsync(this Stream stream, uint count, CancellationToken cancellationToken = default) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var buffer = new Word[count];
+        await stream.ReadExactlyAsync(buffer.AsMemory().AsBytes(), cancellationToken);
         return buffer;
     }
 }

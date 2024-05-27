@@ -27,12 +27,12 @@ public class MessageStreamReaderTests(ITestOutputHelper outputHelper)
         using var stream = new MemoryStream([.. SingleEmptyMessage]);
         var sut = new StreamMessageReader(stream, outputHelper.ToLogger<StreamMessageReader>());
 
-        using var message = await sut.ReadMessageAsync();
+        var message = await sut.ReadMessageAsync();
 
         using (new AssertionScope()) {
-            message.SegmentCount.Should().Be(1);
-            message[0].Length.Should().Be(1);
-            message[0].Span[0].Should().Be(EmptyStructPointer);
+            message.Segments.Should().ContainSingle();
+            message.GetSegmentContents(0).Should().ContainSingle();
+            message.GetSegmentContents(0).Should().Equal(EmptyStructPointer);
         }
     }
 
@@ -50,14 +50,14 @@ public class MessageStreamReaderTests(ITestOutputHelper outputHelper)
         using var stream = new MemoryStream(bytes);
         var sut = new StreamMessageReader(stream, outputHelper.ToLogger<StreamMessageReader>());
 
-        using var message = await sut.ReadMessageAsync(); 
+        var message = await sut.ReadMessageAsync(); 
 
         using (new AssertionScope()) {
-            message.SegmentCount.Should().Be(2);
-            message[0].Length.Should().Be(1);
-            message[1].Length.Should().Be(1);
-            message[0].Span[0].Should().Be(EmptyStructPointer);
-            message[1].Span[0].Should().Be(EmptyStructPointer);
+            message.Segments.Should().HaveCount(2);
+            message.GetSegmentContents(0).Should().ContainSingle();
+            message.GetSegmentContents(1).Should().ContainSingle();
+            message.GetSegmentContents(0).Should().Equal(EmptyStructPointer);
+            message.GetSegmentContents(1).Should().Equal(EmptyStructPointer);
         }
     }
 }

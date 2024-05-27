@@ -21,7 +21,7 @@ public class StreamMessageReader(Stream byteStream, ILogger<StreamMessageReader>
 
     private readonly ILogger<StreamMessageReader> logger = logger;
 
-    public async ValueTask<MessageFrameOwner> ReadMessageAsync(CancellationToken cancellationToken = default)
+    public async Task<WireMessage> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
         // According to the cap'n proto spec, the first word of the message is the number of segments minus one (since there is always one segment for the root object)
         var segmentCount = await this.byteStream.ReadUInt32Async(cancellationToken) + 1;
@@ -43,10 +43,10 @@ public class StreamMessageReader(Stream byteStream, ILogger<StreamMessageReader>
 
         await this.SkipPaddingAsync(segmentSizes.Length, cancellationToken);
 
-        var segments = new MemoryOwner<Word>[segmentCount];
+        var segments = new WireMessageSegment[segmentCount];
         for (var i = 0; i < segmentCount; i++) {
             var segmentSize = segmentSizes.Span[i];
-            segments[i] = await this.byteStream.ReadWordsAsync(segmentSize, cancellationToken);
+            segments[i] = await this.byteStream.ReadWordsArrayAsync(segmentSize, cancellationToken);
             this.logger.LogReadSegment(i, segmentSize);
         }
 
