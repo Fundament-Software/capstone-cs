@@ -28,7 +28,7 @@ public static class PointerDecodingUtils
         // Last 16 bits are the size of the pointer section
         var pointerSize = ushort.CreateChecked(word >> 48 & Bits.BitMaskOf(16));
 
-        return new StructPointer(offset, dataSize, pointerSize);
+        return new StructPointer(index, offset, dataSize, pointerSize);
     }
 
     /// <summary>

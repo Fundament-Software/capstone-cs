@@ -18,10 +18,23 @@ internal enum PointerType : byte
 /// <summary>
 /// Decoded value of a struct pointer in a cap'n proto message.
 /// </summary>
+/// <param name="PointerIndex">Index of the pointer in the segment.</param>
 /// <param name="Offset">The offset, in words from the end of the pointer to the start of the struct's data section. Signed.</param>
 /// <param name="DataSize">Size of the struct's data section, in words. </param>
 /// <param name="PointerSize">Size of the struct's pointer section, in words.</param>
-public readonly record struct StructPointer(int Offset, ushort DataSize, ushort PointerSize);
+public readonly record struct StructPointer(Index PointerIndex, int Offset, ushort DataSize, ushort PointerSize)
+{
+    /// <summary>Index to the first word of the struct in the segment.</summary>
+    public Index StructIndex => this.PointerIndex.AddOffset(this.Offset + 1);
+
+    private Index PointerSectionIndex => this.StructIndex.AddOffset(this.DataSize);
+
+    /// <summary>Range representing the data section of the struct in the segment.</summary>
+    public Range DataSection => this.StructIndex.StartRange(this.DataSize);
+
+    /// <summary>Range representing the pointer section of the struct in the segment.</summary>
+    public Range PointerSection => this.PointerSectionIndex.StartRange(this.PointerSize);
+}
 
 public enum ListElementType : byte
 {
