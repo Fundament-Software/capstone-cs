@@ -15,4 +15,14 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
 
         structReader.ReadInt16(0, 0).Should().Be(15);
     }
+
+    [Fact]
+    public void StructReaderReadsFloat()
+    {
+        var expected = 8.62f;
+        var dataSection = new WireSegmentSlice(new ulong[] { BitConverter.SingleToUInt32Bits(expected) });
+        var structReader = new StructReader(dataSection, new WireSegmentSlice(Array.Empty<ulong>()), outputHelper.ToLogger<StructReader>());
+
+        structReader.ReadFloat32(0, 0).Should().Be(expected);
+    }
 }
