@@ -24,16 +24,20 @@ internal enum PointerType : byte
 /// <param name="PointerSize">Size of the struct's pointer section, in words.</param>
 public readonly record struct StructPointer(Index PointerIndex, int Offset, ushort DataSize, ushort PointerSize)
 {
+    public bool IsNull => this.Offset == 0 && this.DataSize == 0 && this.PointerSize == 0;
+
+    public bool IsEmpty => this.Offset == -1 && this.DataSize == 0 && this.PointerSize == 0;
+    
     /// <summary>Index to the first word of the struct in the segment.</summary>
     public Index StructIndex => this.PointerIndex.AddOffset(this.Offset + 1);
 
     private Index PointerSectionIndex => this.StructIndex.AddOffset(this.DataSize);
 
     /// <summary>Range representing the data section of the struct in the segment.</summary>
-    public Range DataSection => this.StructIndex.StartRange(this.DataSize);
+    public Range DataSectionRange => this.StructIndex.StartRange(this.DataSize);
 
     /// <summary>Range representing the pointer section of the struct in the segment.</summary>
-    public Range PointerSection => this.PointerSectionIndex.StartRange(this.PointerSize);
+    public Range PointerSectionRange => this.PointerSectionIndex.StartRange(this.PointerSize);
 }
 
 public enum ListElementType : byte
