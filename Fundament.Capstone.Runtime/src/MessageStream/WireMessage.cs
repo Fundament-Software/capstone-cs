@@ -92,7 +92,7 @@ public readonly record struct WireSegmentSlice(ArraySegment<Word> Slice) : IRead
     // I have now, but I never made a git commit, so it's really not worth the effort to revert it.
     public Word GetBySizeAlignedOffset(int offset, int typeSize)
     {
-        Guard.IsInRange(typeSize, 1, sizeof(Word) + 1);
+        Guard.IsInRange(typeSize, 1, sizeof(Word) * 8 + 1);
         var (arrayIndex, wordIndex) = CalculateSizeAlignedIndiciesFromOffset(offset, typeSize);
 
         if (!this.IsIndexInRange(arrayIndex))
