@@ -1,6 +1,11 @@
 namespace Tests.Fundament.Capstone.Runtime;
 
+using Fundament.Capstone.Runtime;
+
+using global::Fundament.Capstone.Runtime;
 using global::Fundament.Capstone.Runtime.MessageStream;
+
+using Microsoft.VisualBasic;
 
 using Xunit.Abstractions;
 
@@ -13,7 +18,7 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
         var dataSection = new WireSegmentSlice(new ulong[] { 0x0000_0000_0000_000F });
         var structReader = new StructReader(dataSection, new WireSegmentSlice(Array.Empty<ulong>()), outputHelper.ToLogger<StructReader>());
 
-        structReader.ReadInt16(0, 0).Should().Be(15);
+        (structReader as IStructReader).ReadInt16(0, 0).Should().Be(15);
     }
 
     [Fact]
@@ -23,6 +28,16 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
         var dataSection = new WireSegmentSlice(new ulong[] { BitConverter.SingleToUInt32Bits(expected) });
         var structReader = new StructReader(dataSection, new WireSegmentSlice(Array.Empty<ulong>()), outputHelper.ToLogger<StructReader>());
 
-        structReader.ReadFloat32(0, 0).Should().Be(expected);
+        (structReader as IStructReader).ReadFloat32(0, 0).Should().Be(expected);
+    }
+
+    [Fact]
+    public void StructReaderReadsDouble()
+    {
+        var expected = 3.83;
+        var dataSection = new WireSegmentSlice(new ulong[] { BitConverter.DoubleToUInt64Bits(expected) });
+        var structReader = new StructReader(dataSection, new WireSegmentSlice(Array.Empty<ulong>()), outputHelper.ToLogger<StructReader>());
+
+        (structReader as IStructReader).ReadFloat64(0, 0).Should().Be(expected);
     }
 }
