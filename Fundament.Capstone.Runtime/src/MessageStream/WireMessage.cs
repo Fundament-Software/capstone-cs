@@ -46,7 +46,7 @@ public readonly record struct WireSegmentSlice(ArraySegment<Word> Slice) : IRead
     /// Given an offset of 6 and a type size of 16 (representing a 2-byte integer),
     /// this method would return (1, 32) as 4 2-byte integers fit in a 64-bit word,
     /// and the 6th 2-byte integer would begin at the 32nd bit of the second word.
-    /// <example>
+    /// </example>
     public static (int ArrayIndex, int WordIndex) CalculateSizeAlignedIndiciesFromOffset(int offset, int typeSize)
     {
         // Figure out how many of the type fit in a word
