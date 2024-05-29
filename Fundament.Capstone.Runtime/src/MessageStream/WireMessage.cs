@@ -86,10 +86,6 @@ public readonly record struct WireSegmentSlice(ArraySegment<Word> Slice) : IRead
     /// <param name="offset">The offset, in number of <paramref name="typeSize"/> groups of bits from the beginning of the slice.</param>
     /// <param name="typeSize">The size of the type in bits.</param>
     /// <returns>A word holding the value at the offset. Only the first <paramref name="typeSize"/> bits of the words are significant.</returns>
-    
-    // This method was originally the generic GetBySizeAlignedOffset<T> method, but it was split into two methods
-    // because I couldn't figure out how to force floats to use the xor operator, even though .NET 7's generic math defines it.
-    // I have now, but I never made a git commit, so it's really not worth the effort to revert it.
     public Word GetBySizeAlignedOffset(int offset, int typeSize)
     {
         Guard.IsInRange(typeSize, 1, sizeof(Word) * 8 + 1);
@@ -112,8 +108,11 @@ public readonly record struct WireSegmentSlice(ArraySegment<Word> Slice) : IRead
     /// <typeparam name="T">A value type implementing IBinaryNumber.</typeparam>
     /// <param name="offset">The offset, in number of <typeparamref name="T"/>s, from the beginning of the slice.</param>
     /// <returns>The value as <typeparamref name="T"/> at the specified offset or the default value if the offset is out of range.</returns>
-    public T GetBySizeAlignedOffset<T>(int offset) where T : struct, IBinaryNumber<T> =>
-        T.CreateChecked(this.GetBySizeAlignedOffset(offset, Unsafe.SizeOf<T>() * 8));
+    public T GetBySizeAlignedOffset<T>(int offset) where T : unmanaged, IBinaryNumber<T>
+    {
+        var wordValue = this.GetBySizeAlignedOffset(offset, Unsafe.SizeOf<T>() * 8);
+        return Unsafe.As<Word, T>(ref wordValue);
+    }
 }
 
 /// <summary>
