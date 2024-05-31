@@ -40,7 +40,7 @@ public class PointerDecodingTests
             0);
 
         // =-=-=-=( Act )=-=-=-=
-        MessagePointer convert = originalStructPointer;
+        WirePointer convert = originalStructPointer;
 
         // =-=-=-=( Assert )=-=-=-=
         convert.IsStruct.Should().BeTrue();

@@ -86,7 +86,7 @@ public readonly record struct CapabilityPointer(int CapabilityTableOffset);
 /// This is implemented as a struct with a union-like layout to avoid boxing.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Pack = 1)]
-public readonly struct MessagePointer
+public readonly struct WirePointer
 {
     [FieldOffset(0)]
     private readonly PointerType tag;
@@ -103,25 +103,25 @@ public readonly struct MessagePointer
     [FieldOffset(1)]
     private readonly CapabilityPointer capabilityPointer;
 
-    public MessagePointer(StructPointer structPointer)
+    public WirePointer(StructPointer structPointer)
     {
         this.tag = PointerType.Struct;
         this.structPointer = structPointer;
     }
 
-    public MessagePointer(ListPointer listPointer)
+    public WirePointer(ListPointer listPointer)
     {
         this.tag = PointerType.List;
         this.listPointer = listPointer;
     }
 
-    public MessagePointer(FarPointer farPointer)
+    public WirePointer(FarPointer farPointer)
     {
         this.tag = PointerType.Far;
         this.farPointer = farPointer;
     }
 
-    public MessagePointer(CapabilityPointer capabilityPointer)
+    public WirePointer(CapabilityPointer capabilityPointer)
     {
         this.tag = PointerType.Capability;
         this.capabilityPointer = capabilityPointer;
@@ -185,13 +185,13 @@ public readonly struct MessagePointer
         _ => throw new InvalidOperationException("Unknown pointer type.")
     };
 
-    public static implicit operator MessagePointer(StructPointer v) => new(v);
-    public static implicit operator MessagePointer(ListPointer v) => new(v);
-    public static implicit operator MessagePointer(FarPointer v) => new(v);
-    public static implicit operator MessagePointer(CapabilityPointer v) => new(v);
+    public static implicit operator WirePointer(StructPointer v) => new(v);
+    public static implicit operator WirePointer(ListPointer v) => new(v);
+    public static implicit operator WirePointer(FarPointer v) => new(v);
+    public static implicit operator WirePointer(CapabilityPointer v) => new(v);
 
-    public static implicit operator StructPointer?(MessagePointer self) => self.IsStruct ? self.structPointer : null;
-    public static implicit operator ListPointer?(MessagePointer self) => self.IsList ? self.listPointer : null;
-    public static implicit operator FarPointer?(MessagePointer self) => self.IsFar ? self.farPointer : null;
-    public static implicit operator CapabilityPointer?(MessagePointer self) => self.IsCapability ? self.capabilityPointer : null;
+    public static implicit operator StructPointer?(WirePointer self) => self.IsStruct ? self.structPointer : null;
+    public static implicit operator ListPointer?(WirePointer self) => self.IsList ? self.listPointer : null;
+    public static implicit operator FarPointer?(WirePointer self) => self.IsFar ? self.farPointer : null;
+    public static implicit operator CapabilityPointer?(WirePointer self) => self.IsCapability ? self.capabilityPointer : null;
 }
