@@ -1,18 +1,18 @@
 namespace Fundament.Capstone.Runtime.MessageStream;
 
-using System.Numerics;
+using System.Numerics; 
 
 using Microsoft.Extensions.Logging;
 
-public sealed class StructReader(WireSegmentSlice dataSection, WireSegmentSlice pointerSection, ILogger<StructReader> logger) : IStructReader
+public sealed class StructReader<TCap>(WireSegmentSlice dataSection, WireSegmentSlice pointerSection, ILogger<StructReader<TCap>> logger) : IStructReader<TCap>
 {
     private readonly WireSegmentSlice dataSection = dataSection;
 
     private readonly WireSegmentSlice pointerSection = pointerSection;
 
-    private readonly ILogger<StructReader> logger = logger;
+    private readonly ILogger<StructReader<TCap>> logger = logger;
 
-    public StructReader(WireMessageSegment segment, StructPointer structPointer, ILogger<StructReader> logger) 
+    public StructReader(WireMessageSegment segment, StructPointer structPointer, ILogger<StructReader<TCap>> logger) 
         : this(segment[structPointer.DataSectionRange], segment[structPointer.PointerSectionRange], logger) {}
 
     public void ReadVoid(int offset)

@@ -8,7 +8,7 @@ using System.Numerics;
 /// <remarks>
 /// In Cap'n Proto, struct values are aligned on to a multiple of their size, so the offset is always in multiples of the size of the value being read.
 /// <remarks>
-public interface IStructReader
+public interface IStructReader<TCap>
 {
     /// <summary>
     /// Read a void value from the struct at the given offset from the start of the struct's data section.
