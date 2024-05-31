@@ -22,7 +22,7 @@ internal enum PointerType : byte
 /// <param name="Offset">The offset, in words from the end of the pointer to the start of the struct's data section. Signed.</param>
 /// <param name="DataSize">Size of the struct's data section, in words. </param>
 /// <param name="PointerSize">Size of the struct's pointer section, in words.</param>
-public readonly record struct StructPointer(Index PointerIndex, int Offset, ushort DataSize, ushort PointerSize)
+internal readonly record struct StructPointer(Index PointerIndex, int Offset, ushort DataSize, ushort PointerSize)
 {
     public bool IsNull => this.Offset == 0 && this.DataSize == 0 && this.PointerSize == 0;
 
@@ -62,7 +62,7 @@ public enum ListElementType : byte
 ///     For all values where ElementSize is not 7, the size is the number of elements in the list.
 ///     For ElementSize 7, the size is the number of words in the list, not including the tag word that prefixes the list content.
 /// </param>
-public readonly record struct ListPointer(int Offset, ListElementType ElementSize, uint Size)
+internal readonly record struct ListPointer(int Offset, ListElementType ElementSize, uint Size)
 {
     public bool IsComposite => this.ElementSize == ListElementType.Composite;
 }
@@ -77,16 +77,16 @@ public readonly record struct ListPointer(int Offset, ListElementType ElementSiz
 /// </param>
 /// <param name="Offset">The offset, in words, from the start of the target segment to the location of the far-pointer landing-pad.</param>
 /// <param name="SegmentId">The id of the target segment.</param>
-public readonly record struct FarPointer(bool IsDoubleFar, uint Offset, uint SegmentId);
+internal readonly record struct FarPointer(bool IsDoubleFar, uint Offset, uint SegmentId);
 
-public readonly record struct CapabilityPointer(int CapabilityTableOffset);
+internal readonly record struct CapabilityPointer(int CapabilityTableOffset);
 
 /// <summary>
 /// Sum type for the different pointer types in cap'n proto message.
 /// This is implemented as a struct with a union-like layout to avoid boxing.
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Pack = 1)]
-public readonly struct WirePointer
+internal readonly struct WirePointer
 {
     [FieldOffset(0)]
     private readonly PointerType tag;

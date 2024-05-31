@@ -12,7 +12,7 @@ public sealed class StructReader<TCap>(WireSegmentSlice dataSection, WireSegment
 
     private readonly ILogger<StructReader<TCap>> logger = logger;
 
-    public StructReader(WireMessageSegment segment, StructPointer structPointer, ILogger<StructReader<TCap>> logger) 
+    internal StructReader(WireMessageSegment segment, StructPointer structPointer, ILogger<StructReader<TCap>> logger) 
         : this(segment[structPointer.DataSectionRange], segment[structPointer.PointerSectionRange], logger) {}
 
     public void ReadVoid(int offset)
