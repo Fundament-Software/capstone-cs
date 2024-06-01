@@ -6,36 +6,71 @@ using System.Runtime.CompilerServices;
 
 using CommunityToolkit.Diagnostics;
 
-/// <summary>
-/// Decorator around an ArraySegment<Word> to represent a slice of a wire message.
-/// </summary>
-/// <param name="Slice"></param>
-public readonly record struct WireSegmentSlice(ArraySegment<Word> Slice) : IReadOnlyList<Word>
+public readonly struct WireSegmentSlice : IReadOnlyList<Word>
 {
-    public WireSegmentSlice(Word[] array, Range range) : this(array.Slice(range)) {}
+    private readonly WireMessage message;
+    private readonly int segmentId;
+    private readonly int offset;
+    private readonly int length;
 
-    public static implicit operator WireSegmentSlice(ArraySegment<Word> slice) => new(slice);
+    public WireSegmentSlice(WireMessage message, int segmentId) : this(message, segmentId, Range.All) { }
 
-    public IEnumerator<Word> GetEnumerator() => this.Slice.GetEnumerator();
+    public WireSegmentSlice(WireMessage message, int segmentId, Range range)
+    {
+        Guard.IsInRangeFor(segmentId, message.Segments);
 
-    IEnumerator IEnumerable.GetEnumerator() => this.Slice.GetEnumerator();
+        this.message = message;
+        this.segmentId = segmentId;
+        (this.offset, this.length) = range.GetOffsetAndLength(message.Segments[segmentId].Length);
+    }
 
-    public Word this[int index] => this.Slice[index];
+    public static WireSegmentSlice Empty(WireMessage message, int segmentId) => new(message, segmentId, 0..0);
 
-    /// <summary>
-    /// The main underlying array of the slice.
-    /// Forwards to the underlying ArraySegment's Array property.
-    /// </summary>
-    public Word[]? Array => this.Slice.Array;
+    public WireMessage Message => this.message;
 
-    /// <summary>
-    /// The starting offset of the slice.
-    /// Forwards to the underlying ArraySegment's Offset property.
-    /// </summary>
-    public int Offset => this.Slice.Offset;
+    public int SegmentId => this.segmentId;
+
+    public Word[] Segment => this.message.Segments[this.segmentId];
+
+    public int Offset => this.offset;
 
     /// <summary>Gets the number of elements in the range delimited by the array segment.</summary>
-    public int Count => this.Slice.Count;
+    public int Count => this.length;
+
+    public Word this[int index]
+    {
+        get
+        {
+            Guard.IsInRange(index, 0, this.Count);
+            this.GuardNotEmpty();
+
+            return this.Segment[this.offset + index];
+        }
+    }
+
+    public Enumerator GetEnumerator()
+    {
+        this.GuardNotEmpty();
+        return new(this);
+    }
+
+    public override int GetHashCode() => HashCode.Combine(this.message.GetHashCode(), this.segmentId, this.offset, this.length);
+
+    public void CopyTo(Word[] destination, int destinationIndex = 0)
+    {
+        this.GuardNotEmpty();
+
+        Array.Copy(this.Segment, this.offset, destination, destinationIndex, this.Count);
+    }
+
+    /// <summary>
+    /// Creates a new array and copies the contents of the slice into it.
+    /// </summary>
+    public Word[] ToArray()
+    {   
+        this.GuardNotEmpty();
+        return this.Segment[this.offset..(this.offset + this.Count)];
+    }
 
     /// <summary>
     /// Static helper method to calculate the array index and bit offset for a sized-aligned offset.
@@ -113,4 +148,58 @@ public readonly record struct WireSegmentSlice(ArraySegment<Word> Slice) : IRead
         var wordValue = this.GetBySizeAlignedOffset(offset, Unsafe.SizeOf<T>() * 8);
         return Unsafe.As<Word, T>(ref wordValue);
     }
+
+    private void GuardNotEmpty()
+    {
+        if (this.Count == 0)
+        {
+            throw new InvalidOperationException("The slice is empty.");
+        }
+    }
+
+    IEnumerator<Word> IEnumerable<Word>.GetEnumerator() => this.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+
+    public struct Enumerator : IEnumerator<Word>
+    {
+        private readonly Word[] segment;
+        private readonly int start;
+        private readonly int end;
+        private int current;
+
+        internal Enumerator(WireSegmentSlice slice)
+        {
+            this.segment = slice.Segment;
+            this.start = slice.Offset;
+            this.end = slice.Offset + slice.Count;
+            this.current = slice.Offset - 1;
+        }
+
+        public bool MoveNext()
+        {
+            if (this.current < this.end)
+            {
+                this.current++;
+                return this.current < this.end;
+            }
+
+            return false;
+        }
+
+        public readonly Word Current
+        {
+            get
+            {
+                Guard.IsInRange(this.current, this.start, this.end);
+                return this.segment[this.current];
+            }
+        }
+
+        readonly object? IEnumerator.Current => this.Current;
+
+        void IEnumerator.Reset() => this.current = this.start - 1;
+
+        public void Dispose() { }
+    } 
 }
