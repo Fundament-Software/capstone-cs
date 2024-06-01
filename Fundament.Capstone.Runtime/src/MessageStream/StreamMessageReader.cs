@@ -43,7 +43,7 @@ public class StreamMessageReader(Stream byteStream, ILogger<StreamMessageReader>
 
         await this.SkipPaddingAsync(segmentSizes.Length, cancellationToken);
 
-        var segments = new WireMessageSegment[segmentCount];
+        var segments = new Word[segmentCount][];
         for (var i = 0; i < segmentCount; i++) {
             var segmentSize = segmentSizes.Span[i];
             segments[i] = await this.byteStream.ReadWordsArrayAsync(segmentSize, cancellationToken);

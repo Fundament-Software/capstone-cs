@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 
 using CommunityToolkit.Diagnostics;
 
+/// <summary>
+/// Delimits a section of a wire message. 
+/// </summary>
 public readonly struct WireSegmentSlice : IReadOnlyList<Word>
 {
     private readonly WireMessage message;

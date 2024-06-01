@@ -24,10 +24,4 @@ internal static class IndexExtensions
             ? self..^(self.Value - length)
             : self..(self.Value + length);
     }
-
-    public static ArraySegment<T> Slice<T>(this T[] array, Range range)
-    {
-        var (i, length) = range.GetOffsetAndLength(array.Length);
-        return new ArraySegment<T>(array, i, length);
-    }
 }

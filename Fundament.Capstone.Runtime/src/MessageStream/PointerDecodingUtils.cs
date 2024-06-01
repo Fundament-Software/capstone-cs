@@ -4,7 +4,7 @@ using CommunityToolkit.Diagnostics;
 
 using Fundament.Capstone.Runtime.Exceptions;
 
-public static class PointerDecodingUtils
+internal static class PointerDecodingUtils
 {
     /// <summary>
     /// Decodes the struct pointer at the given index in the segment.
