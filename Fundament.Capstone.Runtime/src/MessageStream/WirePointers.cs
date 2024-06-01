@@ -69,7 +69,7 @@ internal readonly record struct StructPointer(Index PointerIndex, int Offset, us
     }
 }
 
-public enum ListElementType : byte
+internal enum ListElementType : byte
 {
     Void = 0,
     Bit = 1,
@@ -107,7 +107,7 @@ internal readonly record struct ListPointer(Index PointerIndex, int Offset, List
     /// <exception cref="ArgumentOutOfRangeException">If the index is out of bounds for segment.</exception>
     /// <exception cref="TypeTagMismatchException">If the tag of the word does not match the expected tag.</exception>
     /// <exception cref="PointerOffsetOutOfRangeException">If the offset points outside of the bounds of the segment.</exception>
-    public static ListPointer DecodeListPointer(ReadOnlySpan<Word> segment, Index index)
+    public static ListPointer Decode(ReadOnlySpan<Word> segment, Index index)
     {
         var word = PointerDecodingUtils.GetTaggedWord(segment, index, PointerType.List);
 
@@ -154,7 +154,7 @@ internal readonly record struct FarPointer(bool IsDoubleFar, uint Offset, uint S
     /// <returns>The data encoded in the word as a <see cref="FarPointer"/>.</returns>
     /// <exception cref="ArgumentOutOfRangeException">If the index is out of bounds for segment.</exception>
     /// <exception cref="TypeTagMismatchException">If the tag of the word does not match the expected tag.</exception>
-    public static FarPointer DecodeFarPointer(ReadOnlySpan<Word> segment, int index)
+    public static FarPointer Decode(ReadOnlySpan<Word> segment, Index index)
     {
         var word = PointerDecodingUtils.GetTaggedWord(segment, index, PointerType.Far);
 
@@ -179,7 +179,7 @@ internal readonly record struct CapabilityPointer(int CapabilityTableOffset)
     /// <returns>The data encoded in the word as a <see cref="CapabilityPointer"/>.</returns>
     /// <exception cref="ArgumentOutOfRangeException">If the index is out of bounds for segment.</exception>
     /// <exception cref="TypeTagMismatchException">If the tag of the word does not match the expected tag.</exception>
-    public static CapabilityPointer DecodeCapabilityPointer(ReadOnlySpan<Word> segment, int index)
+    public static CapabilityPointer Decode(ReadOnlySpan<Word> segment, Index index)
     {
         var word = PointerDecodingUtils.GetTaggedWord(segment, index, PointerType.Capability);
 
@@ -262,6 +262,15 @@ internal readonly struct WirePointer
             ? throw new InvalidOperationException("MessagePointer is not a capability pointer.")
             : this.capabilityPointer;
 
+    public static WirePointer Decode(ReadOnlySpan<Word> segment, Index index) =>
+        (PointerType)(segment[index] & 3) switch
+        {
+            PointerType.Struct => StructPointer.Decode(segment, index),
+            PointerType.List => ListPointer.Decode(segment, index),
+            PointerType.Far => FarPointer.Decode(segment, index),
+            PointerType.Capability => CapabilityPointer.Decode(segment, index),
+            _ => throw new InvalidOperationException("Unknown pointer type.")
+        };
 
     public T Match<T>(Func<StructPointer, T> onStruct, Func<ListPointer, T> onList, Func<FarPointer, T> onFar, Func<CapabilityPointer, T> onCapability) => this.tag switch
     {
