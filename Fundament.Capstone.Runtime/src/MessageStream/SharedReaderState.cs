@@ -1,3 +1,10 @@
 namespace Fundament.Capstone.Runtime.MessageStream;
 
-public sealed record class SharedReaderState(WireMessage MessageFrame);
+internal sealed class SharedReaderState
+{
+    public required WireMessage WireMessage { get; init; }
+
+    public int TraversalCounter { get; private set; }
+
+    public void IncrementTraversalCounter(int increment) => this.TraversalCounter += increment;
+}
