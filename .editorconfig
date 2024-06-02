@@ -127,6 +127,14 @@ csharp_style_unused_value_expression_statement_preference = discard_variable:sil
 # 'using' directive preferences
 csharp_using_directive_placement = inside_namespace:error
 
+## StyleCop Rules ##
+
+# SA1633: File should have header
+dotnet_diagnostic.SA1633.severity = none
+
+# SA1600: Elements should be documented
+dotnet_diagnostic.SA1600.severity = silent
+
 #### C# Formatting Rules ####
 
 # New line preferences
