@@ -242,26 +242,37 @@ internal readonly struct WirePointer
     public bool IsFar => this.tag == PointerType.Far;
     public bool IsCapability => this.tag == PointerType.Capability;
 
-    public StructPointer UnwrapStruct => 
-        !this.IsStruct 
+    public StructPointer UnwrapStruct =>
+        !this.IsStruct
             ? throw new InvalidOperationException("MessagePointer is not a struct pointer.")
             : this.structPointer;
 
-    public ListPointer UnwrapList => 
-        !this.IsList 
+    public ListPointer UnwrapList =>
+        !this.IsList
             ? throw new InvalidOperationException("MessagePointer is not a list pointer.")
             : this.listPointer;
 
-    public FarPointer UnwrapFar => 
-        !this.IsFar 
+    public FarPointer UnwrapFar =>
+        !this.IsFar
             ? throw new InvalidOperationException("MessagePointer is not a far pointer.")
             : this.farPointer;
 
-    public CapabilityPointer UnwrapCapability => 
-        !this.IsCapability 
+    public CapabilityPointer UnwrapCapability =>
+        !this.IsCapability
             ? throw new InvalidOperationException("MessagePointer is not a capability pointer.")
             : this.capabilityPointer;
 
+    public static implicit operator WirePointer(StructPointer v) => new(v);
+    public static implicit operator WirePointer(ListPointer v) => new(v);
+    public static implicit operator WirePointer(FarPointer v) => new(v);
+    public static implicit operator WirePointer(CapabilityPointer v) => new(v);
+
+    public static implicit operator StructPointer?(WirePointer self) => self.IsStruct ? self.structPointer : null;
+    public static implicit operator ListPointer?(WirePointer self) => self.IsList ? self.listPointer : null;
+    public static implicit operator FarPointer?(WirePointer self) => self.IsFar ? self.farPointer : null;
+    public static implicit operator CapabilityPointer?(WirePointer self) => self.IsCapability ? self.capabilityPointer : null;
+
+#pragma warning disable SA1413 // UseTrailingCommasInMultiLineInitializers - For some reason the switch expression is a "multi-line initializer"
     public static WirePointer Decode(ReadOnlySpan<Word> segment, Index index) =>
         (PointerType)(segment[index] & 3) switch
         {
@@ -303,16 +314,7 @@ internal readonly struct WirePointer
         PointerType.Capability => this.capabilityPointer.ToString(),
         _ => throw new InvalidOperationException("Unknown pointer type.")
     };
-
-    public static implicit operator WirePointer(StructPointer v) => new(v);
-    public static implicit operator WirePointer(ListPointer v) => new(v);
-    public static implicit operator WirePointer(FarPointer v) => new(v);
-    public static implicit operator WirePointer(CapabilityPointer v) => new(v);
-
-    public static implicit operator StructPointer?(WirePointer self) => self.IsStruct ? self.structPointer : null;
-    public static implicit operator ListPointer?(WirePointer self) => self.IsList ? self.listPointer : null;
-    public static implicit operator FarPointer?(WirePointer self) => self.IsFar ? self.farPointer : null;
-    public static implicit operator CapabilityPointer?(WirePointer self) => self.IsCapability ? self.capabilityPointer : null;
+#pragma warning restore SA1413
 }
 
 internal static class PointerDecodingUtils

@@ -129,6 +129,9 @@ csharp_using_directive_placement = inside_namespace:error
 
 ## StyleCop Rules ##
 
+# SA1516: Elements should be separated by blank line
+dotnet_diagnostic.SA1516.severity = silent
+
 # SA1633: File should have header
 dotnet_diagnostic.SA1633.severity = none
 
