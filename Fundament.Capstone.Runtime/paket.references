@@ -3,3 +3,4 @@ CommunityToolkit.HighPerformance
 Microsoft.Extensions.Logging
 OneOf
 StyleCop.Analyzers
+OneOf.SourceGenerator
