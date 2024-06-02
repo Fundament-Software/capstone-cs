@@ -5,6 +5,8 @@ storage: none
 nuget CommunityToolkit.Diagnostics ~> 8.2
 nuget CommunityToolkit.HighPerformance ~> 8.2
 nuget Microsoft.Extensions.Logging ~> 8.0
+nuget OneOf ~> 3.0
+nuget StyleCop.Analyzers 1.2.0-beta.556 beta
 
 // Test Dependencies
 nuget coverlet.collector

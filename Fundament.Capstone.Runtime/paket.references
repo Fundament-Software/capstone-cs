@@ -1,3 +1,5 @@
 CommunityToolkit.Diagnostics
 CommunityToolkit.HighPerformance
 Microsoft.Extensions.Logging
+OneOf
+StyleCop.Analyzers
