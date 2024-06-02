@@ -7,7 +7,7 @@ using System.Numerics;
 /// </summary>
 /// <remarks>
 /// In Cap'n Proto, struct values are aligned on to a multiple of their size, so the offset is always in multiples of the size of the value being read.
-/// <remarks>
+/// </remarks>
 public interface IStructReader<TCap>
 {
     /// <summary>
@@ -26,14 +26,15 @@ public interface IStructReader<TCap>
     /// <typeparam name="T">The type of the data being read.</typeparam>
     /// <param name="offset">The offset of the data being read, in number of <typeparamref name="T"/>s, from the beginning of the data section.</param>
     /// <param name="defaultValue">The default value of the data.</param>
-    /// <returns>The value of type <typeparamref name="T"/> at the provided offset.</returns>   
+    /// <returns>The value of type <typeparamref name="T"/> at the provided offset.</returns>
     /// <remarks>
     /// Old versions of a schema may specify structs with fields that are not present in the current version of the schema.
     /// For this reason, Read never throw an exception if the offset is out of range. Instead, the default value should be returned.
     /// <remarks>
-    public T ReadData<T>(int offset, T defaultValue) where T : unmanaged, IBinaryNumber<T>;
+    public T ReadData<T>(int offset, T defaultValue)
+    where T : unmanaged, IBinaryNumber<T>;
 
-    // public object ReadPointer(int offset);
+    public IAnyReader<TCap> ReadPointer(int offset);
 
     /// <summary>
     /// Reads a boolean value from the struct at the given offset from the start of the struct's data section.
