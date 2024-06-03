@@ -10,7 +10,7 @@ internal sealed class SharedReaderState
 
     public required WireMessage WireMessage { get; init; }
 
-    public required int TraversalLimitInWords { get; init; } = 8 * 1024 * 1024;
+    public int TraversalLimitInWords { get; init; } = 8 * 1024 * 1024;
 
     /// <summary>
     /// Gets or sets the traversal counter.
