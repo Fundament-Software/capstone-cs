@@ -19,6 +19,18 @@ internal enum PointerType : byte
     Capability = 3
 }
 
+internal enum ListElementType : byte
+{
+    Void = 0,
+    Bit = 1,
+    Byte = 2,
+    TwoBytes = 3,
+    FourBytes = 4,
+    EightBytes = 5,
+    EightBytesPointer = 6,
+    Composite = 7
+}
+
 /// <summary>
 /// Decoded value of a struct pointer in a cap'n proto message.
 /// </summary>
@@ -31,17 +43,17 @@ internal readonly record struct StructPointer(Index PointerIndex, int Offset, us
     public bool IsNull => this.Offset == 0 && this.DataSize == 0 && this.PointerSize == 0;
 
     public bool IsEmpty => this.Offset == -1 && this.DataSize == 0 && this.PointerSize == 0;
-    
+
     /// <summary>Index to the first word of the struct in the segment.</summary>
     public Index TargetIndex => this.PointerIndex.AddOffset(this.Offset + 1);
-
-    private Index PointerSectionIndex => this.TargetIndex.AddOffset(this.DataSize);
 
     /// <summary>Range representing the data section of the struct in the segment.</summary>
     public Range DataSectionRange => this.TargetIndex.StartRange(this.DataSize);
 
     /// <summary>Range representing the pointer section of the struct in the segment.</summary>
     public Range PointerSectionRange => this.PointerSectionIndex.StartRange(this.PointerSize);
+
+    private Index PointerSectionIndex => this.TargetIndex.AddOffset(this.DataSize);
 
     /// <summary>
     /// Decodes the struct pointer at the given index in the segment.
@@ -67,18 +79,6 @@ internal readonly record struct StructPointer(Index PointerIndex, int Offset, us
 
         return new StructPointer(index, offset, dataSize, pointerSize);
     }
-}
-
-internal enum ListElementType : byte
-{
-    Void = 0,
-    Bit = 1,
-    Byte = 2,
-    TwoBytes = 3,
-    FourBytes = 4,
-    EightBytes = 5,
-    EightBytesPointer = 6,
-    Composite = 7
 }
 
 /// <summary>
