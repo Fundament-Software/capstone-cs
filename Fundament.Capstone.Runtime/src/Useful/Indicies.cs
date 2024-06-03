@@ -19,7 +19,7 @@ internal static class IndexExtensions
     /// </summary>
     public static Range StartRange(this Index self, int length)
     {
-        Guard.IsGreaterThan(length, 0);
+        Guard.IsGreaterThanOrEqualTo(length, 0);
         return self.IsFromEnd 
             ? self..^(self.Value - length)
             : self..(self.Value + length);
