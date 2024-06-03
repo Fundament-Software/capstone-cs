@@ -2,6 +2,8 @@ namespace Fundament.Capstone.Runtime.MessageStream;
 
 using System.Numerics;
 
+using Fundament.Capstone.Runtime.Logging;
+
 using Microsoft.Extensions.Logging;
 
 /// <summary>
@@ -40,6 +42,8 @@ public sealed class StructReader<TCap> : IStructReader<TCap>
         this.logger = logger;
 
         this.sharedReaderState.TraversalCounter += this.Size;
+
+        this.logger.LogStructPointerTraversal(structPointer, segmentId, this.sharedReaderState.TraversalCounter);
     }
 
     public int Size => this.dataSection.Count + this.pointerSection.Count;
@@ -62,5 +66,4 @@ public sealed class StructReader<TCap> : IStructReader<TCap>
     IAnyReader<TCap> IStructReader<TCap>.ReadPointer(int offset) => this.ReadPointer(offset);
 
     public bool ReadBool(int offset, bool defaultValue) => this.dataSection.GetBitByOffset(offset) ^ defaultValue;
-
 }
