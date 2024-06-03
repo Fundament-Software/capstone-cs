@@ -13,10 +13,10 @@ public class PointerDecodingTests
         const int expectedOffset = 37;
         const ushort expectedDataSize = 42;
         const ushort expectedPointerSize = 6;
-        ulong[] segment = [ ConstructStructPointerWord(expectedOffset, expectedDataSize, expectedPointerSize) ];
-        
+        ulong[] segment = [ConstructStructPointerWord(expectedOffset, expectedDataSize, expectedPointerSize)];
+
         // =-=-=-=( Act )=-=-=-=
-        var result = PointerDecodingUtils.DecodeStructPointer(segment, 0);
+        var result = StructPointer.Decode(segment, 0);
 
         // =-=-=-=( Assert )=-=-=-=
         using (new AssertionScope()) {
@@ -35,7 +35,7 @@ public class PointerDecodingTests
         const int expectedOffset = 8;
         const ushort expectedDataSize = 31;
         const ushort expectedPointerSize = 18;
-        var originalStructPointer = PointerDecodingUtils.DecodeStructPointer(
+        var originalStructPointer = StructPointer.Decode(
             [ ConstructStructPointerWord(expectedOffset, expectedDataSize, expectedPointerSize) ],
             0);
 
