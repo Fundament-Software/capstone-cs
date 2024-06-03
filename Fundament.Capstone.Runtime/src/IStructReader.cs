@@ -11,6 +11,11 @@ using System.Numerics;
 public interface IStructReader<TCap>
 {
     /// <summary>
+    /// The total size of the struct in words.
+    /// </summary>
+    public int Size { get; }
+
+    /// <summary>
     /// Read a void value from the struct at the given offset from the start of the struct's data section.
     /// </summary>
     /// <remarks>

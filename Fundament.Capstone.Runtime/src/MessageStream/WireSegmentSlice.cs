@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
 
 /// <summary>
-/// Delimits a section of a wire message. 
+/// Delimits a section of a wire message.
 /// </summary>
 public readonly struct WireSegmentSlice : IReadOnlyList<Word>
 {
@@ -16,7 +16,10 @@ public readonly struct WireSegmentSlice : IReadOnlyList<Word>
     private readonly int offset;
     private readonly int length;
 
-    public WireSegmentSlice(WireMessage message, int segmentId) : this(message, segmentId, Range.All) { }
+    public WireSegmentSlice(WireMessage message, int segmentId)
+    : this(message, segmentId, Range.All)
+    {
+    }
 
     public WireSegmentSlice(WireMessage message, int segmentId, Range range)
     {
@@ -26,8 +29,6 @@ public readonly struct WireSegmentSlice : IReadOnlyList<Word>
         this.segmentId = segmentId;
         (this.offset, this.length) = range.GetOffsetAndLength(message.Segments[segmentId].Length);
     }
-
-    public static WireSegmentSlice Empty(WireMessage message, int segmentId) => new(message, segmentId, 0..0);
 
     public WireMessage Message => this.message;
 
@@ -51,29 +52,7 @@ public readonly struct WireSegmentSlice : IReadOnlyList<Word>
         }
     }
 
-    public Enumerator GetEnumerator()
-    {
-        this.GuardNotEmpty();
-        return new(this);
-    }
-
-    public override int GetHashCode() => HashCode.Combine(this.message.GetHashCode(), this.segmentId, this.offset, this.length);
-
-    public void CopyTo(Word[] destination, int destinationIndex = 0)
-    {
-        this.GuardNotEmpty();
-
-        Array.Copy(this.Segment, this.offset, destination, destinationIndex, this.Count);
-    }
-
-    /// <summary>
-    /// Creates a new array and copies the contents of the slice into it.
-    /// </summary>
-    public Word[] ToArray()
-    {   
-        this.GuardNotEmpty();
-        return this.Segment[this.offset..(this.offset + this.Count)];
-    }
+    public static WireSegmentSlice Empty(WireMessage message, int segmentId) => new(message, segmentId, 0..0);
 
     /// <summary>
     /// Static helper method to calculate the array index and bit offset for a sized-aligned offset.
@@ -95,6 +74,33 @@ public readonly struct WireSegmentSlice : IReadOnlyList<Word>
         var wordIndex = offset % typePerWord * typeSize;
 
         return (arrayIndex, wordIndex);
+    }
+
+    public Span<Word> AsSpan() => this.Segment.AsSpan(this.Offset, this.Count);
+
+    public Enumerator GetEnumerator()
+    {
+        this.GuardNotEmpty();
+        return new(this);
+    }
+
+    public override int GetHashCode() => HashCode.Combine(this.message.GetHashCode(), this.segmentId, this.offset, this.length);
+
+    public void CopyTo(Word[] destination, int destinationIndex = 0)
+    {
+        this.GuardNotEmpty();
+
+        Array.Copy(this.Segment, this.offset, destination, destinationIndex, this.Count);
+    }
+
+    /// <summary>
+    /// Creates a new array and copies the contents of the slice into it.
+    /// </summary>
+    /// <returns>A new array containing a copy of the elements of the slice.</returns>
+    public Word[] ToArray()
+    {
+        this.GuardNotEmpty();
+        return this.Segment[this.offset..(this.offset + this.Count)];
     }
 
     public bool IsIndexInRange(int index) => index >= 0 && index < this.Count;
@@ -146,11 +152,16 @@ public readonly struct WireSegmentSlice : IReadOnlyList<Word>
     /// <typeparam name="T">A value type implementing IBinaryNumber.</typeparam>
     /// <param name="offset">The offset, in number of <typeparamref name="T"/>s, from the beginning of the slice.</param>
     /// <returns>The value as <typeparamref name="T"/> at the specified offset or the default value if the offset is out of range.</returns>
-    public T GetBySizeAlignedOffset<T>(int offset) where T : unmanaged, IBinaryNumber<T>
+    public T GetBySizeAlignedOffset<T>(int offset)
+    where T : unmanaged, IBinaryNumber<T>
     {
         var wordValue = this.GetBySizeAlignedOffset(offset, Unsafe.SizeOf<T>() * 8);
         return Unsafe.As<Word, T>(ref wordValue);
     }
+
+    IEnumerator<Word> IEnumerable<Word>.GetEnumerator() => this.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     private void GuardNotEmpty()
     {
@@ -159,10 +170,6 @@ public readonly struct WireSegmentSlice : IReadOnlyList<Word>
             throw new InvalidOperationException("The slice is empty.");
         }
     }
-
-    IEnumerator<Word> IEnumerable<Word>.GetEnumerator() => this.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public struct Enumerator : IEnumerator<Word>
     {
@@ -179,17 +186,6 @@ public readonly struct WireSegmentSlice : IReadOnlyList<Word>
             this.current = slice.Offset - 1;
         }
 
-        public bool MoveNext()
-        {
-            if (this.current < this.end)
-            {
-                this.current++;
-                return this.current < this.end;
-            }
-
-            return false;
-        }
-
         public readonly Word Current
         {
             get
@@ -201,8 +197,21 @@ public readonly struct WireSegmentSlice : IReadOnlyList<Word>
 
         readonly object? IEnumerator.Current => this.Current;
 
+        public bool MoveNext()
+        {
+            if (this.current < this.end)
+            {
+                this.current++;
+                return this.current < this.end;
+            }
+
+            return false;
+        }
+
         void IEnumerator.Reset() => this.current = this.start - 1;
 
-        public void Dispose() { }
-    } 
+        public void Dispose()
+        {
+        }
+    }
 }
