@@ -11,10 +11,8 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
     public void StructReaderReadsSimpleValue()
     {
         // 15 encoded as the first 16-bit integer in the data section.
-        var message = new WireMessage([[0x0000_0000_0000_000F]]);
-        var dataSlice = new WireSegmentSlice(message, 0);
-        var pointerSlice = WireSegmentSlice.Empty(message, 0);
-        var structReader = new StructReader<object>(dataSlice, pointerSlice, outputHelper.ToLogger<StructReader<object>>());
+        var (pointer, message) = CreateStructMessage([0x0000_0000_0000_000F]);
+        var (structReader, _) = this.CreateStructReader(pointer, message);
 
         (structReader as IStructReader<object>).ReadInt16(0, 0).Should().Be(15);
     }
@@ -23,10 +21,8 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
     public void StructReaderReadsFloat()
     {
         var expected = 8.62f;
-        var message = new WireMessage([[BitConverter.SingleToUInt32Bits(expected)]]);
-        var dataSlice = new WireSegmentSlice(message, 0);
-        var pointerSlice = WireSegmentSlice.Empty(message, 0);
-        var structReader = new StructReader<object>(dataSlice, pointerSlice, outputHelper.ToLogger<StructReader<object>>());
+        var (pointer, message) = CreateStructMessage([BitConverter.SingleToUInt32Bits(expected)]);
+        var (structReader, _) = this.CreateStructReader(pointer, message);
 
         (structReader as IStructReader<object>).ReadFloat32(0, 0).Should().Be(expected);
     }
@@ -35,11 +31,30 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
     public void StructReaderReadsDouble()
     {
         var expected = 3.83;
-        var message = new WireMessage([[BitConverter.DoubleToUInt64Bits(expected)]]);
-        var dataSlice = new WireSegmentSlice(message, 0);
-        var pointerSlice = WireSegmentSlice.Empty(message, 0);
-        var structReader = new StructReader<object>(dataSlice, pointerSlice, outputHelper.ToLogger<StructReader<object>>());
+        var (pointer, message) = CreateStructMessage([BitConverter.DoubleToUInt64Bits(expected)]);
+        var (structReader, _) = this.CreateStructReader(pointer, message);
 
         (structReader as IStructReader<object>).ReadFloat64(0, 0).Should().Be(expected);
+    }
+
+    private static (StructPointer Pointer, WireMessage Message) CreateStructMessage(ulong[]? data = null, ulong[]? pointers = null)
+    {
+        data ??= [];
+        pointers ??= [];
+
+        var pointer = new StructPointer(0, 0, ushort.CreateChecked(data.Length), ushort.CreateChecked(pointers.Length));
+        ulong[] segment = [
+            pointer.AsWord,
+            ..data,
+            ..pointers
+        ];
+        return (pointer, new WireMessage([segment]));
+    }
+
+    private (StructReader<object> StructReader, SharedReaderState State) CreateStructReader(StructPointer structPointer, WireMessage message)
+    {
+        var state = new SharedReaderState { WireMessage = message };
+        var reader = new StructReader<object>(state, 0, structPointer, outputHelper.ToLogger<StructReader<object>>());
+        return (reader, state);
     }
 }

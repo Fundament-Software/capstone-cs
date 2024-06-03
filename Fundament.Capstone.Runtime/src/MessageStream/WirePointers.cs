@@ -53,6 +53,12 @@ internal readonly record struct StructPointer(Index PointerIndex, int Offset, us
     /// <summary>Range representing the pointer section of the struct in the segment.</summary>
     public Range PointerSectionRange => this.PointerSectionIndex.StartRange(this.PointerSize);
 
+    public Word AsWord =>
+        ((Word)this.Offset & Bits.BitMaskOf(30)) << 2 |
+        (this.DataSize & Bits.BitMaskOf(16)) << 32 |
+        (this.PointerSize & Bits.BitMaskOf(16)) << 48 |
+        ((Word)PointerType.Struct);
+
     private Index PointerSectionIndex => this.TargetIndex.AddOffset(this.DataSize);
 
     /// <summary>
