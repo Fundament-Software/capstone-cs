@@ -23,7 +23,7 @@ public abstract class DecodeException(Word word, Index index, string message) : 
 /// Exception thrown when a word decoded as a pointer has a type tag that does not match the expected type.
 /// </summary>
 public class TypeTagMismatchException(Word word, Index index, byte expectedType) :
-    DecodeException(word, index, $"Expected word {word:X} at index {index} to have type tag {expectedType}, but it had {word & 3}")
+    DecodeException(word, index, $"Expected word 0x{word:X} at index {index} to have type tag {expectedType}, but it had {word & 3}")
 {
     public byte AcutalTypeTag => (byte)(this.Word & 3);
 
