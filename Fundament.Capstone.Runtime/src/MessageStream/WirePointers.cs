@@ -337,7 +337,7 @@ internal static class PointerDecodingUtils
     {
         var targetOffset = pointerIndex.AddOffset(offset + 1).GetOffset(segment.Length);
 
-        if (targetOffset < 0 || targetOffset <= segment.Length)
+        if (targetOffset < 0 || targetOffset >= segment.Length)
         {
             throw new PointerOffsetOutOfRangeException(segment[pointerIndex], pointerIndex, targetOffset);
         }
