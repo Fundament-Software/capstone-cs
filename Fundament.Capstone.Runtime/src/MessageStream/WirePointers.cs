@@ -34,24 +34,14 @@ internal enum ListElementType : byte
 /// <summary>
 /// Decoded value of a struct pointer in a cap'n proto message.
 /// </summary>
-/// <param name="PointerIndex">Index of the pointer in the segment.</param>
 /// <param name="Offset">The offset, in words from the end of the pointer to the start of the struct's data section. Signed.</param>
 /// <param name="DataSize">Size of the struct's data section, in words. </param>
 /// <param name="PointerSize">Size of the struct's pointer section, in words.</param>
-internal readonly record struct StructPointer(Index PointerIndex, int Offset, ushort DataSize, ushort PointerSize)
+internal readonly record struct StructPointer(int Offset, ushort DataSize, ushort PointerSize)
 {
     public bool IsNull => this.Offset == 0 && this.DataSize == 0 && this.PointerSize == 0;
 
     public bool IsEmpty => this.Offset == -1 && this.DataSize == 0 && this.PointerSize == 0;
-
-    /// <summary>Index to the first word of the struct in the segment.</summary>
-    public Index TargetIndex => this.PointerIndex.AddOffset(this.Offset + 1);
-
-    /// <summary>Range representing the data section of the struct in the segment.</summary>
-    public Range DataSectionRange => this.TargetIndex.StartRange(this.DataSize);
-
-    /// <summary>Range representing the pointer section of the struct in the segment.</summary>
-    public Range PointerSectionRange => this.PointerSectionIndex.StartRange(this.PointerSize);
 
     public Word AsWord =>
         ((Word)this.Offset & Bits.BitMaskOf(30)) << 2 |
@@ -59,31 +49,18 @@ internal readonly record struct StructPointer(Index PointerIndex, int Offset, us
         (this.PointerSize & Bits.BitMaskOf(16)) << 48 |
         ((Word)PointerType.Struct);
 
-    private Index PointerSectionIndex => this.TargetIndex.AddOffset(this.DataSize);
-
-    /// <summary>
-    /// Decodes the struct pointer at the given index in the segment.
-    /// This method checks that the word is a struct pointer, and that the offset is within the bounds of the segment.
-    /// </summary>
-    /// <param name="segment">Segment to get the pointer from.</param>
-    /// <param name="index">Index of the pointer in the segment.</param>
-    /// <returns>The data encoded in the word as a <see cref="StructPointer">.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">If the index is out of bounds for segment.</exception>
-    /// <exception cref="TypeTagMismatchException">If the tag of the word does not match the expected tag.</exception>
-    /// <exception cref="PointerOffsetOutOfRangeException">If the offset points outside of the bounds of the segment.</exception>
-    public static StructPointer Decode(ReadOnlySpan<Word> segment, Index index)
+    public static StructPointer Decode(Word word)
     {
-        var ptrWord = PointerDecodingUtils.GetTaggedWord(segment, index, PointerType.Struct);
+        PointerDecodingUtils.AssertWordTag(word, PointerType.Struct);
 
         // First 30 bits after the tag are the offset, as a signed integer
-        var offset = int.CreateChecked(ptrWord >> 2 & Bits.BitMaskOf(30));
-        PointerDecodingUtils.CheckPointerOffset(segment, index, offset);
+        var offset = int.CreateChecked(word >> 2 & Bits.BitMaskOf(30));
         // Next 16 bits are the size of the data section
-        var dataSize = ushort.CreateChecked(ptrWord >> 32 & Bits.BitMaskOf(16));
+        var dataSize = ushort.CreateChecked(word >> 32 & Bits.BitMaskOf(16));
         // Last 16 bits are the size of the pointer section
-        var pointerSize = ushort.CreateChecked(ptrWord >> 48 & Bits.BitMaskOf(16));
+        var pointerSize = ushort.CreateChecked(word >> 48 & Bits.BitMaskOf(16));
 
-        return new StructPointer(index, offset, dataSize, pointerSize);
+        return new StructPointer(offset, dataSize, pointerSize);
     }
 }
 
@@ -97,35 +74,22 @@ internal readonly record struct StructPointer(Index PointerIndex, int Offset, us
 ///     For all values where ElementSize is not 7, the size is the number of elements in the list.
 ///     For ElementSize 7, the size is the number of words in the list, not including the tag word that prefixes the list content.
 /// </param>
-internal readonly record struct ListPointer(Index PointerIndex, int Offset, ListElementType ElementSize, uint Size)
+internal readonly record struct ListPointer(int Offset, ListElementType ElementSize, uint Size)
 {
     public bool IsComposite => this.ElementSize == ListElementType.Composite;
 
-    public Index TargetIndex => this.PointerIndex.AddOffset(this.Offset + 1);
-
-    /// <summary>
-    /// Decodes the list pointer at the given index in the segment.
-    /// This method checks that the word is a struct pointer, and that the offset is within the bounds of the segment.
-    /// </summary>
-    /// <param name="segment">Segment to get the pointer from.</param>
-    /// <param name="index">Index of the pointer in the segment.</param>
-    /// <returns>The data encoded in the word as a <see cref="ListPointer"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">If the index is out of bounds for segment.</exception>
-    /// <exception cref="TypeTagMismatchException">If the tag of the word does not match the expected tag.</exception>
-    /// <exception cref="PointerOffsetOutOfRangeException">If the offset points outside of the bounds of the segment.</exception>
-    public static ListPointer Decode(ReadOnlySpan<Word> segment, Index index)
+    public static ListPointer Decode(Word word)
     {
-        var word = PointerDecodingUtils.GetTaggedWord(segment, index, PointerType.List);
+        PointerDecodingUtils.AssertWordTag(word, PointerType.List);
 
         // First 30 bits after the tag are the offset, as a signed integer
         var offset = int.CreateChecked(word >> 2 & Bits.BitMaskOf(30));
-        PointerDecodingUtils.CheckPointerOffset(segment, index, offset);
         // Next 3 bits are the element size
         var elementSize = CreateCheckedListElementType(word >> 32 & Bits.BitMaskOf(3));
         // Last 29 bits represent the size of the list
         var size = uint.CreateChecked(word >> 35 & Bits.BitMaskOf(29));
 
-        return new ListPointer(index, offset, elementSize, size);
+        return new ListPointer(offset, elementSize, size);
     }
 
     /// <summary>
@@ -134,8 +98,8 @@ internal readonly record struct ListPointer(Index PointerIndex, int Offset, List
     /// <exception cref="ArgumentOutOfRangeException">If the value is out of range for ListElementType.</exception>
     private static ListElementType CreateCheckedListElementType(Word value)
     {
-        Guard.IsBetweenOrEqualTo(value, (byte) ListElementType.Void, (byte) ListElementType.Composite);
-        return (ListElementType) value;
+        Guard.IsBetweenOrEqualTo(value, (byte)ListElementType.Void, (byte)ListElementType.Composite);
+        return (ListElementType)value;
     }
 }
 
@@ -155,23 +119,19 @@ internal readonly record struct FarPointer(bool IsDoubleFar, uint Offset, uint S
     /// Decodes a far pointer from a segment.
     /// The caller must validate the segment id and offset, as this method is unable to check bounds outside of the provided segment.
     /// </summary>
-    /// <param name="segment">Segment to get the pointer from.</param>
-    /// <param name="index">Index of the pointer in the segment.</param>
-    /// <returns>The data encoded in the word as a <see cref="FarPointer"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">If the index is out of bounds for segment.</exception>
     /// <exception cref="TypeTagMismatchException">If the tag of the word does not match the expected tag.</exception>
-    public static FarPointer Decode(ReadOnlySpan<Word> segment, Index index)
+    public static FarPointer Decode(Word word)
     {
-        var word = PointerDecodingUtils.GetTaggedWord(segment, index, PointerType.Far);
+        PointerDecodingUtils.AssertWordTag(word, PointerType.Far);
 
-        return new FarPointer(
-            // First bit is the double-far flag
-            (word >> 2 & 1) == 1,
-            // Next 29 bits are the offset. This is offset in words from the start of the target segment, so we can't do bounds checking here.
-            uint.CreateChecked(word >> 3 & Bits.BitMaskOf(29)),
-            // Last 32 bits are the segment id.
-            uint.CreateChecked(word >> 32 & Bits.BitMaskOf(32))
-        );
+        // First bit is the double-far flag
+        var doubleFarFlag = (word >> 2 & 1) == 1;
+        // Next 29 bits are the offset in words from the beginning of the target segment.
+        var offset = uint.CreateChecked(word >> 3 & Bits.BitMaskOf(29));
+        // Last 32 bits are the segment id.
+        var segmentId = uint.CreateChecked(word >> 32 & Bits.BitMaskOf(32));
+
+        return new FarPointer(doubleFarFlag, offset, segmentId);
     }
 }
 
@@ -180,18 +140,14 @@ internal readonly record struct CapabilityPointer(int CapabilityTableOffset)
     /// <summary>
     /// Decodes a capability pointer from a segment.
     /// </summary>
-    /// <param name="segment">The segment to get the pointer from.</param>
-    /// <param name="index">The index of the pointer in the segment.</param>
     /// <returns>The data encoded in the word as a <see cref="CapabilityPointer"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">If the index is out of bounds for segment.</exception>
     /// <exception cref="TypeTagMismatchException">If the tag of the word does not match the expected tag.</exception>
-    public static CapabilityPointer Decode(ReadOnlySpan<Word> segment, Index index)
+    public static CapabilityPointer Decode(Word word)
     {
-        var word = PointerDecodingUtils.GetTaggedWord(segment, index, PointerType.Capability);
+        PointerDecodingUtils.AssertWordTag(word, PointerType.Capability);
 
         // We only care about the last 32 bits of the word, which is the index to the capability table.
         var capabilityOffset = int.CreateChecked(word >> 32 & Bits.BitMaskOf(32));
-        PointerDecodingUtils.CheckPointerOffset(segment, index, capabilityOffset);
 
         return new CapabilityPointer(capabilityOffset);
     }
@@ -279,13 +235,13 @@ internal readonly struct WirePointer
     public static implicit operator CapabilityPointer?(WirePointer self) => self.IsCapability ? self.capabilityPointer : null;
 
 #pragma warning disable SA1413 // UseTrailingCommasInMultiLineInitializers - For some reason the switch expression is a "multi-line initializer"
-    public static WirePointer Decode(ReadOnlySpan<Word> segment, Index index) =>
-        (PointerType)(segment[index] & 3) switch
+    public static WirePointer Decode(Word word) =>
+        (PointerType)(word & 3) switch
         {
-            PointerType.Struct => StructPointer.Decode(segment, index),
-            PointerType.List => ListPointer.Decode(segment, index),
-            PointerType.Far => FarPointer.Decode(segment, index),
-            PointerType.Capability => CapabilityPointer.Decode(segment, index),
+            PointerType.Struct => StructPointer.Decode(word),
+            PointerType.List => ListPointer.Decode(word),
+            PointerType.Far => FarPointer.Decode(word),
+            PointerType.Capability => CapabilityPointer.Decode(word),
             _ => throw new InvalidOperationException("Unknown pointer type.")
         };
 
@@ -339,23 +295,18 @@ internal static class PointerDecodingUtils
 
         if (targetOffset < 0 || targetOffset >= segment.Length)
         {
-            throw new PointerOffsetOutOfRangeException(segment[pointerIndex], pointerIndex, targetOffset);
+            throw new PointerOffsetOutOfRangeException(segment[pointerIndex], targetOffset, pointerIndex);
         }
     }
 
-    /// <summary>
-    /// Helper method to get a word from a segment, performing bounds checking and tag validation.
-    /// </summary>
-    /// <exception cref="IndexOutOfRangeException">If the index is out of bounds for segment.</exception>
-    /// <exception cref="TypeTagMismatchException">If the tag of the word does not match the expected tag.</exception>
-    public static Word GetTaggedWord(ReadOnlySpan<Word> segment, Index index, PointerType type)
+    public static void AssertWordTag(Word word, PointerType expectedTag)
     {
-        var word = segment[index];
         var tag = word & 3;
-        var expectedTag = (byte) type;
+        var expectedTagValue = (byte)expectedTag;
 
-        return tag != expectedTag
-            ? throw new TypeTagMismatchException(word, index, expectedTag)
-            : word;
+        if (tag != expectedTagValue)
+        {
+            throw new TypeTagMismatchException(word, expectedTagValue);
+        }
     }
 }
