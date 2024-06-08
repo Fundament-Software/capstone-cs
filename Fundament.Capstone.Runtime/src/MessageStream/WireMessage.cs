@@ -4,7 +4,7 @@ namespace Fundament.Capstone.Runtime.MessageStream;
 /// Light wrapper around an array of WireMessageSegments representing a wire message.
 /// </summary>
 /// <param name="Segments"></param>
-public readonly record struct WireMessage(Word[][] Segments)
+internal readonly record struct WireMessage(Word[][] Segments)
 {
     public Word[] this[int index] => this.Segments[index];
 
