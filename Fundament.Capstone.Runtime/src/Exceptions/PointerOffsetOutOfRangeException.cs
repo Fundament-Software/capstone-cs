@@ -9,30 +9,34 @@ using System.Text;
 /// <param name="word">The word that caused the exception.</param>
 /// <param name="index">The location of the word in it's segment.</param>
 /// <param name="targetOffset">The erroronuous target of the pointer, as an offset from start of the segment.</param>
-public class PointerOffsetOutOfRangeException(Word word, int targetOffset, Index? index = null) : DecodeException(word, ConstructMessage(word, targetOffset, index), index)
+public class PointerOffsetOutOfRangeException(Word word, int targetOffset, Index? index = null) : DecodeException(word, index)
 {
     public int TargetOffset => targetOffset;
 
-    private static string ConstructMessage(Word word, int targetOffset, Index? index)
+    public override string Message
     {
-        var sb = new StringBuilder();
-        sb.Append(CultureInfo.CurrentCulture, $"Offset of pointer {word:X} at index {index} is out of bounds, ");
-
-        if (index.HasValue)
+        get
         {
-            sb.Append(CultureInfo.CurrentCulture, $"at index {index}");
-        }
+            var sb = new StringBuilder();
+            sb.Append(CultureInfo.CurrentCulture, $"Offset of pointer {this.Word:X}");
 
-        sb.Append(" would be {targetOffset} words from the beginning of the segment, which is");
+            if (this.Index.HasValue)
+            {
+                sb.Append(CultureInfo.CurrentCulture, $"at index {this.Index}");
+            }
 
-        if (targetOffset < 0)
-        {
-            sb.Append(" before the start of the segment.");
+            sb.Append(CultureInfo.CurrentCulture, $" is out of bounds, would be {this.TargetOffset} words from the beginning of the segment, which is");
+
+            if (targetOffset < 0)
+            {
+                sb.Append(" before the start of the segment.");
+            }
+            else
+            {
+                sb.Append(" after the end of the segment.");
+            }
+
+            return sb.ToString();
         }
-        else
-        {
-            sb.Append(" after the end of the segment.");
-        }
-        return sb.ToString();
     }
 }

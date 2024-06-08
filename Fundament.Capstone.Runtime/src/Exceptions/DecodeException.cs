@@ -3,7 +3,7 @@ namespace Fundament.Capstone.Runtime.Exceptions;
 /// <summary>
 /// Base class for exceptions thrown during decoding.
 /// </summary>
-public abstract class DecodeException(Word word, string message, Index? index = null) : Exception(message)
+public abstract class DecodeException(Word word, Index? index = null) : Exception()
 {
     /// <summary>
     /// The word that caused the exception.

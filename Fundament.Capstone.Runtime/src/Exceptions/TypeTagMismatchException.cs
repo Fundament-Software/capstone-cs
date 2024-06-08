@@ -7,24 +7,27 @@ using System.Text;
 /// <summary>
 /// Exception thrown when a word decoded as a pointer has a type tag that does not match the expected type.
 /// </summary>
-public class TypeTagMismatchException(Word word, byte expectedType, Index? index = null) : DecodeException(word, BuildMessage(word, expectedType, index), index)
+public class TypeTagMismatchException(Word word, byte expectedType, Index? index = null) : DecodeException(word, index)
 {
     public byte AcutalTypeTag => (byte)(this.Word & 3);
 
     public byte ExpectedTypeTag => expectedType;
 
-    private static string BuildMessage(Word word, byte expectedType, Index? index)
+    public override string Message
     {
-        var sb = new StringBuilder();
-        sb.Append(CultureInfo.CurrentCulture, $"Expected word 0x{word:X}");
-
-        if (index.HasValue)
+        get
         {
-            sb.Append(CultureInfo.CurrentCulture, $" at index {index}");
+            var sb = new StringBuilder();
+            sb.Append(CultureInfo.CurrentCulture, $"Expected word 0x{this.Word:X}");
+
+            if (this.Index.HasValue)
+            {
+                sb.Append(CultureInfo.CurrentCulture, $" at index {this.Index}");
+            }
+
+            sb.Append(CultureInfo.CurrentCulture, $" to have type tag {this.ExpectedTypeTag}, but it has {this.Word & 3}");
+
+            return sb.ToString();
         }
-
-        sb.Append(CultureInfo.CurrentCulture, $" to have type tag {expectedType}, but it has {word & 3}");
-
-        return sb.ToString();
     }
 }
