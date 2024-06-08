@@ -1,7 +1,9 @@
 namespace Fundament.Capstone.Runtime.MessageStream;
 
+using System.Diagnostics;
 using System.Numerics;
 
+using Fundament.Capstone.Runtime.Exceptions;
 using Fundament.Capstone.Runtime.Logging;
 
 using Microsoft.Extensions.Logging;
@@ -32,13 +34,23 @@ public sealed class StructReader<TCap> : IStructReader<TCap>
     internal StructReader(
         SharedReaderState sharedReaderState,
         int segmentId,
+        Index pointerIndex,
         StructPointer structPointer,
         ILogger<StructReader<TCap>> logger)
     {
         this.sharedReaderState = sharedReaderState;
         this.segmentId = segmentId;
-        this.dataSection = sharedReaderState.WireMessage.Slice(segmentId, structPointer.DataSectionRange);
-        this.pointerSection = sharedReaderState.WireMessage.Slice(segmentId, structPointer.PointerSectionRange);
+
+        // The index of the struct in the segment. Called "targetIndex" because it's the target of the struct pointer.
+        var targetIndex = EvaluatePointerTarget(sharedReaderState.WireMessage[segmentId], pointerIndex, structPointer);
+
+        var dataSectionRange = targetIndex..targetIndex.AddOffset(structPointer.DataSize);
+        this.dataSection = sharedReaderState.WireMessage.Slice(segmentId, dataSectionRange);
+
+        var pointerSectionIndex = targetIndex.AddOffset(structPointer.DataSize);
+        var pointerSectionRange = pointerSectionIndex..pointerSectionIndex.AddOffset(structPointer.PointerSize);
+        this.pointerSection = sharedReaderState.WireMessage.Slice(segmentId, pointerSectionRange);
+
         this.logger = logger;
 
         this.sharedReaderState.TraversalCounter += this.Size;
@@ -48,22 +60,38 @@ public sealed class StructReader<TCap> : IStructReader<TCap>
 
     public int Size => this.dataSection.Count + this.pointerSection.Count;
 
-    public void ReadVoid(int offset) => this.sharedReaderState.TraversalCounter += 1;
+    public void ReadVoid(int index) => this.sharedReaderState.TraversalCounter += 1;
 
-    public T ReadData<T>(int offset, T defaultValue)
+    public T ReadData<T>(int index, T defaultValue)
     where T : unmanaged, IBinaryNumber<T> =>
-        this.dataSection.GetBySizeAlignedOffset<T>(offset) ^ defaultValue;
+        this.dataSection.GetBySizeAlignedOffset<T>(index) ^ defaultValue;
 
-    public AnyReader<TCap> ReadPointer(int offset) =>
+    public AnyReader<TCap> ReadPointer(int index) =>
         WirePointer
-            .Decode(this.pointerSection.AsSpan(), offset)
+            .Decode(this.pointerSection[index])
             .Match(
-                (StructPointer structPointer) => new StructReader<TCap>(this.sharedReaderState, this.segmentId, structPointer, this.logger),
+                (StructPointer structPointer) => new StructReader<TCap>(this.sharedReaderState, this.segmentId, this.pointerSection.Offset + index, structPointer, this.logger),
                 (ListPointer listPointer) => throw new NotImplementedException(),
                 (FarPointer farPointer) => throw new NotImplementedException(),
                 (CapabilityPointer capabilityPointer) => throw new NotImplementedException());
 
     IAnyReader<TCap> IStructReader<TCap>.ReadPointer(int offset) => this.ReadPointer(offset);
 
-    public bool ReadBool(int offset, bool defaultValue) => this.dataSection.GetBitByOffset(offset) ^ defaultValue;
+    public bool ReadBool(int index, bool defaultValue) => this.dataSection.GetBitByOffset(index) ^ defaultValue;
+
+    private static Index EvaluatePointerTarget(ReadOnlySpan<Word> segment, Index pointerIndex, StructPointer structPointer)
+    {
+        // StructReader constructer and StructPointer is internal, so only run this check when developing the library.
+        Debug.Assert(segment[pointerIndex] == structPointer.AsWord, $"Expected word {segment[pointerIndex]:X} at index {pointerIndex} to equal {structPointer.AsWord:X}.");
+
+        var pointerTargetIndex = pointerIndex.AddOffset(structPointer.Offset);
+        var pointerTargetOffset = pointerTargetIndex.GetOffset(segment.Length);
+
+        if (pointerTargetOffset < 0 || pointerTargetOffset >= segment.Length)
+        {
+            throw new PointerOffsetOutOfRangeException(segment[pointerIndex], pointerTargetOffset, pointerIndex);
+        }
+
+        return pointerTargetIndex;
+    }
 }
