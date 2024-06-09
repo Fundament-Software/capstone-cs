@@ -84,7 +84,7 @@ public sealed class StructReader<TCap> : IStructReader<TCap>
         // StructReader constructer and StructPointer is internal, so only run this check when developing the library.
         Debug.Assert(segment[pointerIndex] == structPointer.AsWord, $"Expected word {segment[pointerIndex]:X} at index {pointerIndex} to equal {structPointer.AsWord:X}.");
 
-        var pointerTargetIndex = pointerIndex.AddOffset(structPointer.Offset);
+        var pointerTargetIndex = pointerIndex.AddOffset(structPointer.Offset + 1);
         var pointerTargetOffset = pointerTargetIndex.GetOffset(segment.Length);
 
         if (pointerTargetOffset < 0 || pointerTargetOffset >= segment.Length)
