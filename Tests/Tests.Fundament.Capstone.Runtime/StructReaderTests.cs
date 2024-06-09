@@ -1,5 +1,7 @@
 namespace Tests.Fundament.Capstone.Runtime;
 
+using System.Net.NetworkInformation;
+
 using CommunityToolkit.Diagnostics;
 
 using global::Fundament.Capstone.Runtime;
@@ -13,8 +15,8 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
     public void ReadsShort()
     {
         // 15 encoded as the first 16-bit integer in the data section.
-        var (pointer, message) = CreateStructMessage([0x0000_0000_0000_000F]);
-        var (structReader, _) = this.CreateStructReader(pointer, message);
+        var (pointer, message) = CreateRootStructMessage([0x0000_0000_0000_000F]);
+        var (structReader, _) = this.NewStructReader(message, pointer);
 
         (structReader as IStructReader<object>).ReadInt16(0, 0).Should().Be(15);
     }
@@ -23,8 +25,8 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
     public void ReadsFloat()
     {
         var expected = 8.62f;
-        var (pointer, message) = CreateStructMessage([BitConverter.SingleToUInt32Bits(expected)]);
-        var (structReader, _) = this.CreateStructReader(pointer, message);
+        var (pointer, message ) = CreateRootStructMessage([BitConverter.SingleToUInt32Bits(expected)]);
+        var (structReader, _) = this.NewStructReader(message, pointer);
 
         (structReader as IStructReader<object>).ReadFloat32(0, 0).Should().Be(expected);
     }
@@ -33,8 +35,8 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
     public void StructReaderReadsDouble()
     {
         var expected = 3.83;
-        var (pointer, message) = CreateStructMessage([BitConverter.DoubleToUInt64Bits(expected)]);
-        var (structReader, _) = this.CreateStructReader(pointer, message);
+        var (pointer, message) = CreateRootStructMessage([BitConverter.DoubleToUInt64Bits(expected)]);
+        var (structReader, _) = this.NewStructReader(message, pointer);
 
         (structReader as IStructReader<object>).ReadFloat64(0, 0).Should().Be(expected);
     }
@@ -45,20 +47,13 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
         var expectedRootData = 927.32;
         ulong expectedSecondaryData = 45;
 
-        var segment = new ulong[4];
-
         // Create the root struct pointer and set the root data.
-        var rootStructPointer = new StructPointer(0, 0, 1, 1);
-        segment[0] = rootStructPointer.AsWord;
-        segment[1] = BitConverter.DoubleToUInt64Bits(expectedRootData);
+        var (rootPointer, message) = CreateRootStructMessage([BitConverter.DoubleToUInt64Bits(expectedRootData)], pointerSize: 1, padding: 1);
 
         // Create the secondary struct pointer and set the secondary data.
-        var secondaryStructPointer = new StructPointer(2, 0, 1, 0);
-        segment[2] = secondaryStructPointer.AsWord;
-        segment[3] = expectedSecondaryData;
+        var secondaryStructPointer = WriteStruct(message[0], 2, 3, [expectedSecondaryData], 0);
 
-        var message = new WireMessage([segment]);
-        var (rootStructReader, _) = this.CreateStructReader(rootStructPointer, message);
+        var (rootStructReader, sharedReaderState) = this.NewStructReader(message, rootPointer);
 
         // Assertions
         (rootStructReader as IStructReader<object>).ReadFloat64(0, 0).Should().Be(expectedRootData);
@@ -68,24 +63,32 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
         (secondaryStructReader.AsT0 as IStructReader<object>).ReadUInt64(0, 0).Should().Be(expectedSecondaryData);
     }
 
-    private static (StructPointer Pointer, WireMessage Message) CreateStructMessage(ulong[]? data = null, ulong[]? pointers = null)
+    private static StructPointer WriteStruct(Span<ulong> segment, Index pointerIndex, Index structIndex, ReadOnlySpan<ulong> data, ushort pointerSize)
     {
-        data ??= [];
-        pointers ??= [];
+        var structOffset = structIndex.GetOffset(segment.Length) - pointerIndex.GetOffset(segment.Length) - 1;
+        var structPointer = new StructPointer(structOffset, ushort.CreateChecked(data.Length), pointerSize);
 
-        var pointer = new StructPointer(0, 0, ushort.CreateChecked(data.Length), ushort.CreateChecked(pointers.Length));
-        ulong[] segment = [
-            pointer.AsWord,
-            ..data,
-            ..pointers
-        ];
-        return (pointer, new WireMessage([segment]));
+        segment[pointerIndex] = structPointer.AsWord;
+        data.CopyTo(segment[structIndex.StartRange(data.Length)]);
+
+        return structPointer;
     }
 
-    private (StructReader<object> StructReader, SharedReaderState State) CreateStructReader(StructPointer structPointer, WireMessage message)
+    private static (StructPointer Pointer, WireMessage Message) CreateRootStructMessage(ReadOnlySpan<ulong> data, int structOffset = 0, ushort pointerSize = 0, int padding = 0)
+    {
+        var segment = new ulong[data.Length + structOffset + pointerSize + padding + 1];
+        var structPointer = WriteStruct(segment, 0, structOffset + 1, data, pointerSize);
+        return (structPointer, new WireMessage([segment]));
+    }
+
+    private (StructReader<object> RootStructReader, SharedReaderState State) NewStructReader(
+        WireMessage message,
+        StructPointer pointer,
+        int segmentId = 0,
+        Index index = default)
     {
         var state = new SharedReaderState { WireMessage = message };
-        var reader = new StructReader<object>(state, 0, structPointer, outputHelper.ToLogger<StructReader<object>>());
-        return (reader, state);
+        var structReader = new StructReader<object>(state, segmentId, index, pointer, outputHelper.ToLogger<StructReader<object>>());
+        return (structReader, state);
     }
 }
