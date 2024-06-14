@@ -4,11 +4,15 @@ using CommunityToolkit.Diagnostics;
 
 using Fundament.Capstone.Runtime.Exceptions;
 
+using Microsoft.Extensions.Logging;
+
 internal sealed class SharedReaderState
 {
     private int traversalCounter;
 
     public required WireMessage WireMessage { get; init; }
+
+    public required LoggerFactory LoggerFactory { get; init; }
 
     public int TraversalLimitInWords { get; init; } = 8 * 1024 * 1024;
 
