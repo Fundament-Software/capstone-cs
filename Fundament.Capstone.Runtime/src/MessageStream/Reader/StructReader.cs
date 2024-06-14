@@ -6,8 +6,6 @@ using System.Numerics;
 using Fundament.Capstone.Runtime.Exceptions;
 using Fundament.Capstone.Runtime.Logging;
 
-using Microsoft.Extensions.Logging;
-
 /// <summary>
 /// A reader for a struct in a cap'n proto message.
 /// </summary>
@@ -16,29 +14,20 @@ using Microsoft.Extensions.Logging;
 /// In the case ofthe MessageStream encoding, we consider instantiating a new reader to be a traversal of the pointer.
 /// Therefore, instantiating a new reader increments the traversal counter.
 /// </remarks>
-public sealed class StructReader<TCap> : IStructReader<TCap>
+public sealed class StructReader<TCap> : BaseReader<TCap, StructReader<TCap>>, IStructReader<TCap>
 {
+    private readonly int segmentId;
+
     // This class has an invariant we need to maintain:
     // The sharedReaderState.WireMessage is the same instance as dataSection.WireMessage and pointerSection.WireMessage
     // This isn't too hard because SharedReaderState is how we pass around the WireMessage instance between readers.
-    private readonly SharedReaderState sharedReaderState;
-
-    private readonly int segmentId;
-
     private readonly WireSegmentSlice dataSection;
 
     private readonly WireSegmentSlice pointerSection;
 
-    private readonly ILogger<StructReader<TCap>> logger;
-
-    internal StructReader(
-        SharedReaderState sharedReaderState,
-        int segmentId,
-        Index pointerIndex,
-        StructPointer structPointer,
-        ILogger<StructReader<TCap>> logger)
+    internal StructReader(SharedReaderState sharedReaderState, int segmentId, Index pointerIndex, StructPointer structPointer)
+    : base(sharedReaderState)
     {
-        this.sharedReaderState = sharedReaderState;
         this.segmentId = segmentId;
 
         // The index of the struct in the segment. Called "targetIndex" because it's the target of the struct pointer.
@@ -51,16 +40,14 @@ public sealed class StructReader<TCap> : IStructReader<TCap>
         var pointerSectionRange = pointerSectionIndex..pointerSectionIndex.AddOffset(structPointer.PointerSize);
         this.pointerSection = sharedReaderState.WireMessage.Slice(segmentId, pointerSectionRange);
 
-        this.logger = logger;
+        this.SharedReaderState.TraversalCounter += this.Size;
 
-        this.sharedReaderState.TraversalCounter += this.Size;
-
-        this.logger.LogStructPointerTraversal(structPointer, segmentId, this.sharedReaderState.TraversalCounter);
+        this.Logger.LogStructPointerTraversal(structPointer, segmentId, this.SharedReaderState.TraversalCounter);
     }
 
     public int Size => this.dataSection.Count + this.pointerSection.Count;
 
-    public void ReadVoid(int index) => this.sharedReaderState.TraversalCounter += 1;
+    public void ReadVoid(int index) => this.SharedReaderState.TraversalCounter += 1;
 
     public T ReadData<T>(int index, T defaultValue)
     where T : unmanaged, IBinaryNumber<T> =>
@@ -70,7 +57,7 @@ public sealed class StructReader<TCap> : IStructReader<TCap>
         WirePointer
             .Decode(this.pointerSection[index])
             .Match(
-                (StructPointer structPointer) => new StructReader<TCap>(this.sharedReaderState, this.segmentId, this.pointerSection.Offset + index, structPointer, this.logger),
+                (StructPointer structPointer) => new StructReader<TCap>(this.SharedReaderState, this.segmentId, this.pointerSection.Offset + index, structPointer),
                 (ListPointer listPointer) => throw new NotImplementedException(),
                 (FarPointer farPointer) => throw new NotImplementedException(),
                 (CapabilityPointer capabilityPointer) => throw new NotImplementedException());

@@ -12,7 +12,7 @@ internal sealed class SharedReaderState
 
     public required WireMessage WireMessage { get; init; }
 
-    public required LoggerFactory LoggerFactory { get; init; }
+    public required ILoggerFactory LoggerFactory { get; init; }
 
     public int TraversalLimitInWords { get; init; } = 8 * 1024 * 1024;
 

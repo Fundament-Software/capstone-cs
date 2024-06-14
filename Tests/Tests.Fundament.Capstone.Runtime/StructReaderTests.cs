@@ -87,8 +87,8 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
         int segmentId = 0,
         Index index = default)
     {
-        var state = new SharedReaderState { WireMessage = message };
-        var structReader = new StructReader<object>(state, segmentId, index, pointer, outputHelper.ToLogger<StructReader<object>>());
+        var state = new SharedReaderState { WireMessage = message, LoggerFactory = outputHelper.ToLoggerFactory() };
+        var structReader = new StructReader<object>(state, segmentId, index, pointer);
         return (structReader, state);
     }
 }
