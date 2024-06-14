@@ -9,7 +9,7 @@ using System.Text;
 /// <param name="word">The word that caused the exception.</param>
 /// <param name="index">The location of the word in it's segment.</param>
 /// <param name="targetOffset">The erroronuous target of the pointer, as an offset from start of the segment.</param>
-public class PointerOffsetOutOfRangeException(Word word, int targetOffset, Index? index = null) : DecodeException(word, index)
+public class PointerOffsetOutOfRangeException(Word word, int targetOffset, Index? index = null, Exception? innerException = null) : DecodeException(word, index, innerException)
 {
     public int TargetOffset => targetOffset;
 
