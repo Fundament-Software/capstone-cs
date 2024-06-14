@@ -76,7 +76,19 @@ internal readonly record struct StructPointer(int Offset, ushort DataSize, ushor
 /// </param>
 internal readonly record struct ListPointer(int Offset, ListElementType ElementSize, uint Size)
 {
+    public bool IsPointer => this.ElementSize == ListElementType.EightBytesPointer;
+
     public bool IsComposite => this.ElementSize == ListElementType.Composite;
+
+    public uint SizeInWords => this.ElementSize switch
+    {
+        ListElementType.Void => 0,
+        ListElementType.Bit => this.Size / sizeof(Word),
+        ListElementType.Byte => this.Size * 8 / sizeof(Word),
+        ListElementType.TwoBytes => this.Size * 16 / sizeof(Word),
+        ListElementType.FourBytes => this.Size * 32 / sizeof(Word),
+        _ => this.Size,
+    };
 
     public static ListPointer Decode(Word word)
     {
