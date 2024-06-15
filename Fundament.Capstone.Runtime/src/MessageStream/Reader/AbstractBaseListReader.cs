@@ -17,15 +17,9 @@ where TSelf : AbstractBaseListReader<T, TCap, TSelf>
     {
         this.SegmentId = segmentId;
         this.ListSlice = this.EvaluatePointerTarget(segmentId, pointerIndex, pointer);
+        this.Count = this.CalculateCount(pointer);
 
-        if (pointer.ElementSize == ListElementType.Void)
-        {
-            this.SharedReaderState.TraversalCounter += (int)pointer.Size;
-        }
-        else
-        {
-            this.SharedReaderState.TraversalCounter += (int)pointer.SizeInWords;
-        }
+        this.SharedReaderState.TraversalCounter += GetTraveralCounterIncrement(pointer);
     }
 
     public int Count { get; protected init; }
@@ -55,6 +49,16 @@ where TSelf : AbstractBaseListReader<T, TCap, TSelf>
 
         return startIndex..endIndex;
     }
+
+    [Pure]
+    private protected abstract int CalculateCount(ListPointer pointer);
+
+    private static int GetTraveralCounterIncrement(ListPointer pointer) =>
+        pointer.ElementSize switch
+        {
+            ListElementType.Void => (int)pointer.Size,
+            _ => (int)pointer.SizeInWords,
+        };
 
     /// <summary>
     /// Evaluates the target of a pointer and returns the slice of the wire message that the pointer points to.
