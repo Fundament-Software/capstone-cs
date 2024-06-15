@@ -293,24 +293,6 @@ internal readonly struct WirePointer
 
 internal static class PointerDecodingUtils
 {
-    /// <summary>
-    /// Checks if the offset of a pointer is within the bounds of the segment.
-    /// </summary>
-    /// <param name="segment">The segment the pointer resides in.</param>
-    /// <param name="pointerIndex">The index of the pointer word in the segment.</param>
-    /// <param name="offset">The decoded offset of the pointer word.</param>
-    /// <exception cref="ArgumentOutOfRangeException">If the word index is out of bounds for segment.</exception>
-    /// <exception cref="PointerOffsetOutOfRangeException">If the offset points outside of the bounds of the segment.</exception>
-    public static void CheckPointerOffset(ReadOnlySpan<Word> segment, Index pointerIndex, int offset)
-    {
-        var targetOffset = pointerIndex.AddOffset(offset + 1).GetOffset(segment.Length);
-
-        if (targetOffset < 0 || targetOffset >= segment.Length)
-        {
-            throw new PointerOffsetOutOfRangeException(segment[pointerIndex], targetOffset, pointerIndex);
-        }
-    }
-
     public static void AssertWordTag(Word word, PointerType expectedTag)
     {
         var tag = word & 3;
