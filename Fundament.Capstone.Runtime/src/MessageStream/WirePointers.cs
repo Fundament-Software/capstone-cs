@@ -19,18 +19,6 @@ internal enum PointerType : byte
     Capability = 3
 }
 
-internal enum ListElementType : byte
-{
-    Void = 0,
-    Bit = 1,
-    Byte = 2,
-    TwoBytes = 3,
-    FourBytes = 4,
-    EightBytes = 5,
-    EightBytesPointer = 6,
-    Composite = 7
-}
-
 /// <summary>
 /// Decoded value of a struct pointer in a cap'n proto message.
 /// </summary>
