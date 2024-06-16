@@ -1,13 +1,11 @@
-namespace Fundament.Capstone.Runtime;
+namespace Fundament.Capstone.Runtime.MessageStream;
 
 using System.Numerics;
 
 using CommunityToolkit.Diagnostics;
 
-using Fundament.Capstone.Runtime.MessageStream;
-
 /// <summary>
-/// A reader for a list of primitive values. This shoud NOT be used for bools. Use <see cref="BoolListReader"/> instead.
+/// A reader for a list of primitive values. This shoud NOT be used for bools. Use <see cref="ListBooleanReader"/> instead.
 /// </summary>
 /// <typeparam name="T">The type of the primitive values in the list. This should not be `bool`.</typeparam>
 /// <typeparam name="TCap">The type of the capability table imbued in the reader.</typeparam>
