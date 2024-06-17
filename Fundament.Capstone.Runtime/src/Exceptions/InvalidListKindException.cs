@@ -1,6 +1,5 @@
 namespace Fundament.Capstone.Runtime.Exceptions;
 
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
