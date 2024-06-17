@@ -7,6 +7,7 @@ using OneOf;
 /// <summary>
 /// A discriminated union of *Reader types.
 /// </summary>
+/// <typeparam name="TCap">The type of the capability table imbued in the reader.</typeparam>
 [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1601:PartialElementsMustBeDocumented", Justification = "Partial class due to code generation")]
 [GenerateOneOf]
 public partial class AnyReader<TCap> : OneOfBase<StructReader<TCap>>, IAnyReader<TCap>
