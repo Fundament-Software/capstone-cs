@@ -9,10 +9,10 @@ using CommunityToolkit.Diagnostics;
 /// </summary>
 /// <typeparam name="T">The type of the primitive values in the list. This should not be `bool`.</typeparam>
 /// <typeparam name="TCap">The type of the capability table imbued in the reader.</typeparam>
-public class ListPrimitiveReader<T, TCap> : AbstractBaseListReader<T, TCap, ListPrimitiveReader<T, TCap>>
+public sealed class ListOfPrimitiveReader<T, TCap> : AbstractBaseListReader<T, TCap, ListOfPrimitiveReader<T, TCap>>
 where T : unmanaged, IBinaryNumber<T>
 {
-    internal ListPrimitiveReader(SharedReaderState state, int segmentId, Index pointerIndex, ListPointer pointer)
+    internal ListOfPrimitiveReader(SharedReaderState state, int segmentId, Index pointerIndex, ListPointer pointer)
         : base(state, segmentId, pointerIndex, pointer)
     {
     }
@@ -27,13 +27,4 @@ where T : unmanaged, IBinaryNumber<T>
     }
 
     private protected override int CalculateCount(ListPointer pointer) => (int)pointer.Size;
-}
-
-public class ListPrimitiveReader<T> : ListPrimitiveReader<T, Unit>
-where T : unmanaged, IBinaryNumber<T>
-{
-    internal ListPrimitiveReader(SharedReaderState state, int segmentId, Index pointerIndex, ListPointer pointer)
-        : base(state, segmentId, pointerIndex, pointer)
-    {
-    }
 }
