@@ -16,6 +16,7 @@ where TSelf : AbstractBaseListReader<T, TCap, TSelf>
         : base(state)
     {
         this.SegmentId = segmentId;
+        this.TargetIndex = pointerIndex.AddOffset(pointer.Offset + 1);
         this.ListSlice = this.EvaluatePointerTarget(segmentId, pointerIndex, pointer);
         this.Count = (int)pointer.Size;
 
@@ -26,29 +27,15 @@ where TSelf : AbstractBaseListReader<T, TCap, TSelf>
 
     protected int SegmentId { get; init; }
 
+    /// <summary>The index of the start of the list in the segment.</summary>
+    protected Index TargetIndex { get; init; }
+
     private protected WireSegmentSlice ListSlice { get; init; }
 
     public abstract T this[int index] { get; }
 
     public IEnumerator<T> GetEnumerator() => new ListReaderEnumerator(this);
     IEnumerator IEnumerable.GetEnumerator() => new ListReaderEnumerator(this);
-
-    /// <summary>
-    /// Calculates the range of the wire message that the ListPointer points to.
-    /// Or in other words, the indecies of the wire message where the list data resides.
-    /// This is used by <see cref="EvaluatePointerTarget(int, Index, ListPointer)"/> to get the slice of the wire message.
-    /// </summary>
-    /// <param name="pointerIndex">The index of the pointer in the segment.</param>
-    /// <param name="pointer">The pointer to evaluate.</param>
-    /// <returns>A Range locating the list data in the WireMessage.</returns>
-    [Pure]
-    private protected virtual Range GetPointerTargetRange(Index pointerIndex, ListPointer pointer)
-    {
-        var startIndex = pointerIndex.AddOffset(pointer.Offset + 1);
-        var endIndex = startIndex.AddOffset((int)pointer.SizeInWords);
-
-        return startIndex..endIndex;
-    }
 
     private static int GetTraveralCounterIncrement(ListPointer pointer) =>
         pointer.ElementSize switch
@@ -69,7 +56,7 @@ where TSelf : AbstractBaseListReader<T, TCap, TSelf>
     {
         try
         {
-            var targetRange = this.GetPointerTargetRange(pointerIndex, pointer);
+            var targetRange = this.TargetIndex..this.TargetIndex.AddOffset((int)pointer.SizeInWords);
             return this.SharedReaderState.WireMessage.Slice(segmentId, targetRange);
         }
         catch (IndexOutOfRangeException e)

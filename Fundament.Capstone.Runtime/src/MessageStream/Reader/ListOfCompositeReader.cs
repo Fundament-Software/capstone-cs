@@ -18,7 +18,8 @@ public sealed class ListOfCompositeReader<TCap> : AbstractBaseListReader<StructR
     {
         InvalidListKindException.ThrowIfListKindIsNot(pointer, ListElementType.Composite, pointerIndex);
 
-        (this.Count, this.dataSize, this.pointerSize) = this.DecodeTag(pointerIndex, pointer);
+        (this.Count, this.dataSize, this.pointerSize) = this.DecodeTag(this.TargetIndex);
+        this.TargetIndex = this.TargetIndex.AddOffset(1);
 
         Debug.Assert(
             this.ListSlice.Count == pointer.SizeInWords,
@@ -42,22 +43,14 @@ public sealed class ListOfCompositeReader<TCap> : AbstractBaseListReader<StructR
         {
             Guard.IsInRangeFor(index, this);
 
-            var structOffset = this.ListSlice.Offset + (index * this.StructSize);
+            var structOffset = this.TargetIndex.AddOffset(index * this.StructSize);
             return new StructReader<TCap>(this.SharedReaderState, this.SegmentId, structOffset, this.dataSize, this.pointerSize);
         }
     }
 
-    private protected override Range GetPointerTargetRange(Index pointerIndex, ListPointer pointer)
+    private (int Count, ushort DataSize, ushort PointerSize) DecodeTag(Index tagIndex)
     {
-        // Just increment the range by one to skip the tag word.
-        var range = base.GetPointerTargetRange(pointerIndex, pointer);
-        return range.Start.AddOffset(1)..range.End.AddOffset(1);
-    }
-
-    private (int Count, ushort DataSize, ushort PointerSize) DecodeTag(Index pointerIndex, ListPointer pointer)
-    {
-        var tagWordIndex = pointerIndex.AddOffset(pointer.Offset);
-        var tagWord = this.SharedReaderState.WireMessage[this.SegmentId][tagWordIndex];
+        var tagWord = this.SharedReaderState.WireMessage[this.SegmentId][tagIndex];
 
         var tag = StructPointer.Decode(tagWord);
         return (tag.Offset, tag.DataSize, tag.PointerSize);
