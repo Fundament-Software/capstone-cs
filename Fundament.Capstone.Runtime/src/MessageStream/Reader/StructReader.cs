@@ -53,14 +53,18 @@ public sealed class StructReader<TCap> : BaseReader<TCap, StructReader<TCap>>, I
     where T : unmanaged, IBinaryNumber<T> =>
         this.dataSection.GetBySizeAlignedOffset<T>(index) ^ defaultValue;
 
-    public AnyReader<TCap> ReadPointer(int index) =>
-        WirePointer
-            .Decode(this.pointerSection[index])
-            .Match(
-                (StructPointer structPointer) => new StructReader<TCap>(this.SharedReaderState, this.segmentId, this.pointerSection.Offset + index, structPointer),
-                (ListPointer listPointer) => throw new NotImplementedException(),
-                (FarPointer farPointer) => throw new NotImplementedException(),
-                (CapabilityPointer capabilityPointer) => throw new NotImplementedException());
+    /// <summary>
+    /// Reads at the specified index in the pointer section. This traverses the pointer and creates a new reader.
+    /// </summary>
+    /// <param name="index">The index of the pointer in the pointer section to read.</param>
+    /// <returns>A new reader for the object pointed to by the pointer.</returns>
+    public AnyReader<TCap> ReadPointer(int index)
+    {
+        var pointer = WirePointer.Decode(this.pointerSection[index]);
+        var pointerIndex = this.pointerSection.Offset + index;
+
+        return AnyReader<TCap>.TraversePointer(pointer, this.SharedReaderState, this.segmentId, pointerIndex);
+    }
 
     IAnyReader<TCap> IStructReader<TCap>.ReadPointer(int offset) => this.ReadPointer(offset);
 
