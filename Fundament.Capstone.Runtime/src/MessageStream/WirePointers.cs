@@ -82,6 +82,12 @@ internal readonly record struct ListPointer(int Offset, ListElementType ElementS
         _ => this.Size,
     };
 
+    public Word AsWord =>
+        ((Word)this.Offset & Bits.BitMaskOf(30)) << 2 |
+        ((Word)this.ElementSize & Bits.BitMaskOf(3)) << 32 |
+        (this.Size & Bits.BitMaskOf(29)) << 35 |
+        ((Word)PointerType.List);
+
     public static ListPointer Decode(Word word)
     {
         PointerDecodingUtils.AssertWordTag(word, PointerType.List);
