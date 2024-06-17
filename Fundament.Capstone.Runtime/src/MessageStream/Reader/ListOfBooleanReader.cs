@@ -20,6 +20,4 @@ public sealed class ListOfBooleanReader<TCap> : AbstractBaseListReader<bool, TCa
             return this.ListSlice.GetBitByOffset(index);
         }
     }
-
-    private protected override int CalculateCount(ListPointer pointer) => (int)pointer.Size;
 }

@@ -17,7 +17,6 @@ where T : unmanaged, IBinaryNumber<T>
 {
     private static readonly FrozenSet<ListElementType> AllowedListKinds = new HashSet<ListElementType>
     {
-        ListElementType.Void,
         ListElementType.Byte,
         ListElementType.TwoBytes,
         ListElementType.FourBytes,
@@ -38,6 +37,4 @@ where T : unmanaged, IBinaryNumber<T>
             return this.ListSlice.GetBySizeAlignedOffset<T>(index);
         }
     }
-
-    private protected override int CalculateCount(ListPointer pointer) => (int)pointer.Size;
 }

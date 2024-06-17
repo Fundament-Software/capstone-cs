@@ -50,8 +50,13 @@ where TSelf : AbstractBaseListReader<T, TCap, TSelf>
         return startIndex..endIndex;
     }
 
+    /// <summary>
+    /// Calculates the number of elements in the list. This is called by the constructor to set the <see cref="Count"/> property.
+    /// </summary>
+    /// <param name="pointer">The pointer to calculate the count for.</param>
+    /// <returns>The number of elements in the list.</returns>
     [Pure]
-    private protected abstract int CalculateCount(ListPointer pointer);
+    private protected virtual int CalculateCount(ListPointer pointer) => (int)pointer.Size;
 
     private static int GetTraveralCounterIncrement(ListPointer pointer) =>
         pointer.ElementSize switch
