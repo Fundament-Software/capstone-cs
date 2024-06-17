@@ -2,11 +2,11 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 
 using CommunityToolkit.Diagnostics;
 
 using Fundament.Capstone.Runtime.Exceptions;
+using Fundament.Capstone.Runtime.Logging;
 using Fundament.Capstone.Runtime.MessageStream;
 
 public abstract class AbstractBaseListReader<T, TCap, TSelf> : BaseReader<TCap, TSelf>, IListReader<T, TCap>
@@ -21,6 +21,8 @@ where TSelf : AbstractBaseListReader<T, TCap, TSelf>
         this.Count = (int)pointer.Size;
 
         this.SharedReaderState.TraversalCounter += GetTraveralCounterIncrement(pointer);
+
+        this.Logger.LogPointerTraversal(pointer, segmentId, this.SharedReaderState.TraversalCounter);
     }
 
     public int Count { get; protected init; }

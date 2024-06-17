@@ -38,7 +38,7 @@ public sealed class StructReader<TCap> : BaseReader<TCap, StructReader<TCap>>, I
 
         this.SharedReaderState.TraversalCounter += this.Size;
 
-        this.Logger.LogStructPointerTraversal(structPointer, segmentId, this.SharedReaderState.TraversalCounter);
+        this.Logger.LogPointerTraversal(structPointer, segmentId, this.SharedReaderState.TraversalCounter);
     }
 
     /// <summary>
