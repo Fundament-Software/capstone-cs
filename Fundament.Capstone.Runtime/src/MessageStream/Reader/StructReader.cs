@@ -33,16 +33,31 @@ public sealed class StructReader<TCap> : BaseReader<TCap, StructReader<TCap>>, I
         // The index of the struct in the segment. Called "targetIndex" because it's the target of the struct pointer.
         var targetIndex = EvaluatePointerTarget(sharedReaderState.WireMessage[segmentId], pointerIndex, structPointer);
 
-        var dataSectionRange = targetIndex..targetIndex.AddOffset(structPointer.DataSize);
-        this.dataSection = sharedReaderState.WireMessage.Slice(segmentId, dataSectionRange);
-
-        var pointerSectionIndex = targetIndex.AddOffset(structPointer.DataSize);
-        var pointerSectionRange = pointerSectionIndex..pointerSectionIndex.AddOffset(structPointer.PointerSize);
-        this.pointerSection = sharedReaderState.WireMessage.Slice(segmentId, pointerSectionRange);
+        this.dataSection = this.SliceDataSection(targetIndex, structPointer.DataSize);
+        this.pointerSection = this.SlicePointerSection(targetIndex, structPointer.DataSize, structPointer.PointerSize);
 
         this.SharedReaderState.TraversalCounter += this.Size;
 
         this.Logger.LogStructPointerTraversal(structPointer, segmentId, this.SharedReaderState.TraversalCounter);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StructReader{TCap}"/> class.
+    /// This constructor is used to create readers elements in composite lists.
+    /// As a result, the traversal counter is not incremented in this constructor, as the pointer has already been traversed.
+    /// </summary>
+    /// <param name="sharedReaderState">The shared reader state.</param>
+    /// <param name="segmentId">The segment id the struct resides in.</param>
+    /// <param name="startIndex">The index of the struct in the segment.</param>
+    /// <param name="dataSize">The size of the data section of the struct.</param>
+    /// <param name="pointerSize">The size of the pointer section of the struct.</param>
+    internal StructReader(SharedReaderState sharedReaderState, int segmentId, Index startIndex, ushort dataSize, ushort pointerSize)
+    : base(sharedReaderState)
+    {
+        this.segmentId = segmentId;
+
+        this.dataSection = this.SliceDataSection(startIndex, dataSize);
+        this.pointerSection = this.SlicePointerSection(startIndex, dataSize, pointerSize);
     }
 
     public int Size => this.dataSection.Count + this.pointerSection.Count;
@@ -84,5 +99,18 @@ public sealed class StructReader<TCap> : BaseReader<TCap, StructReader<TCap>>, I
         }
 
         return pointerTargetIndex;
+    }
+
+    private WireSegmentSlice SliceDataSection(Index targetIndex, ushort dataSize)
+    {
+        var dataSectionRange = targetIndex..targetIndex.AddOffset(dataSize);
+        return this.SharedReaderState.WireMessage.Slice(this.segmentId, dataSectionRange);
+    }
+
+    private WireSegmentSlice SlicePointerSection(Index targetIndex, ushort dataSize, ushort pointerSize)
+    {
+        var pointerSectionIndex = targetIndex.AddOffset(dataSize);
+        var pointerSectionRange = pointerSectionIndex..pointerSectionIndex.AddOffset(pointerSize);
+        return this.SharedReaderState.WireMessage.Slice(this.segmentId, pointerSectionRange);
     }
 }
