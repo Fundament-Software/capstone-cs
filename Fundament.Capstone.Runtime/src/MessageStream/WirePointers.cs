@@ -73,12 +73,13 @@ internal readonly record struct ListPointer(int Offset, ListElementType ElementS
         ListElementType.Void => 0,
         // this.Size / 64
         ListElementType.Bit => this.Size / sizeof(Word) * 8,
+        // https://stackoverflow.com/a/4846569
         // this.Size * 8 / sizeof(Word) * 8
-        ListElementType.Byte => (this.Size / sizeof(Word)) + 1,
+        ListElementType.Byte => (this.Size + sizeof(Word) - 1) / sizeof(Word),
         // this.Size * 16 / sizeof(Word) * 8
-        ListElementType.TwoBytes => (this.Size * 2 / sizeof(Word)) + 1,
+        ListElementType.TwoBytes => ((this.Size * 2) + sizeof(Word) - 1) / sizeof(Word),
         // this.Size * 32 / sizeof(Word) * 8
-        ListElementType.FourBytes => (this.Size * 4 / sizeof(Word)) + 1,
+        ListElementType.FourBytes => ((this.Size * 4) + sizeof(Word) - 1) / sizeof(Word),
         _ => this.Size,
     };
 

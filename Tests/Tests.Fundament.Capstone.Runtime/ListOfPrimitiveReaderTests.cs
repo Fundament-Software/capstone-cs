@@ -11,10 +11,14 @@ using Xunit.Abstractions;
 
 public class ListOfPrimitiveReaderTests(ITestOutputHelper outputHelper)
 {
+    public static object[][] PrimitiveReaderTheoryData => [
+        [ListElementType.FourBytes, new int[] { 1, 2, 3, 4, 5 }]
+    ];
+    
     [Fact]
     public void ListOfPrimitiveReader_BehavesLikeCorrectList()
     {
-        var listPointer = new ListPointer(0, ListElementType.FourBytes, 5);
+        var listPointer = new ListPointer(0, ListElementType.FourBytes, 6);
         var sharedReaderState = new SharedReaderState
         {
             WireMessage = new WireMessage([
@@ -22,13 +26,13 @@ public class ListOfPrimitiveReaderTests(ITestOutputHelper outputHelper)
                     listPointer.AsWord,
                     0x0000_0002_0000_0001,
                     0x0000_0004_0000_0003,
-                    0x0000_0000_0000_0005,
+                    0x0000_0006_0000_0005,
                 ]
             ]),
             LoggerFactory = outputHelper.ToLoggerFactory(),
         };
         var reader = new ListOfPrimitiveReader<int, Unit>(sharedReaderState, 0, 0, listPointer);
 
-        reader.Should().Equal(1, 2, 3, 4, 5);
+        reader.Should().Equal(1, 2, 3, 4, 5, 6);
     }
 }
