@@ -1,20 +1,12 @@
 ﻿namespace Tests.Fundament.Capstone.Runtime;
 
-using FluentAssertions.Execution;
-
-using Fundament.Capstone.Runtime;
-
 using global::Fundament.Capstone.Runtime;
 using global::Fundament.Capstone.Runtime.MessageStream;
 
 using Xunit.Abstractions;
 
-public class ListOfPrimitiveReaderTests(ITestOutputHelper outputHelper)
+public class ListOfReaderTests(ITestOutputHelper outputHelper)
 {
-    public static object[][] PrimitiveReaderTheoryData => [
-        [ListElementType.FourBytes, new int[] { 1, 2, 3, 4, 5 }]
-    ];
-    
     [Fact]
     public void ListOfPrimitiveReader_BehavesLikeCorrectList()
     {
