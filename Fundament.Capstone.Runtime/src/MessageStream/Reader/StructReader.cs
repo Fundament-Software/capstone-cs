@@ -73,15 +73,15 @@ public sealed class StructReader<TCap> : BaseReader<TCap, StructReader<TCap>>, I
     /// </summary>
     /// <param name="index">The index of the pointer in the pointer section to read.</param>
     /// <returns>A new reader for the object pointed to by the pointer.</returns>
-    public AnyReader<TCap> ReadPointer(int index)
+    public IReader<TCap> ReadPointer(int index)
     {
         var pointer = WirePointer.Decode(this.pointerSection[index]);
         var pointerIndex = this.pointerSection.Offset + index;
 
-        return AnyReader<TCap>.TraversePointer(pointer, this.SharedReaderState, this.segmentId, pointerIndex);
+        return pointer.Traverse<TCap>(this.SharedReaderState, this.segmentId, pointerIndex);
     }
 
-    IAnyReader<TCap> IStructReader<TCap>.ReadPointer(int offset) => this.ReadPointer(offset);
+    IReader<TCap> IStructReader<TCap>.ReadPointer(int offset) => this.ReadPointer(offset);
 
     public bool ReadBool(int index, bool defaultValue) => this.dataSection.GetBitByOffset(index) ^ defaultValue;
 

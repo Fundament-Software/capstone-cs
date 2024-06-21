@@ -8,7 +8,7 @@ using System.Numerics;
 /// <remarks>
 /// In Cap'n Proto, struct values are aligned on to a multiple of their size, so the index is always in multiples of the size of the value being read.
 /// </remarks>
-public interface IStructReader<TCap>
+public interface IStructReader<TCap> : IReader<TCap>
 {
     /// <summary>
     /// The total size of the struct in words.
@@ -47,7 +47,7 @@ public interface IStructReader<TCap>
     /// <param name="index">The index of the pointer.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the index is out of range for the pointer section.</exception>
     /// <returns>The reader for the object that the pointer points to.</returns>
-    public IAnyReader<TCap> ReadPointer(int index);
+    public IReader<TCap> ReadPointer(int index);
 
     /// <summary>
     /// Reads a boolean value from the struct at the given index from the start of the struct's data section.

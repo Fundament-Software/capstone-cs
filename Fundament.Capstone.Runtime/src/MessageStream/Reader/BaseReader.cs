@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 /// </summary>
 /// <typeparam name="TCap">The type of the capability table imbued in the reader. Unused for now.</typeparam>
 /// <typeparam name="TSelf">The type of the dervied class. Used for logging.</typeparam>
-public abstract class BaseReader<TCap, TSelf>
+public abstract class BaseReader<TCap, TSelf> : IReader<TCap>
 where TSelf : BaseReader<TCap, TSelf>
 {
     private protected BaseReader(SharedReaderState state)

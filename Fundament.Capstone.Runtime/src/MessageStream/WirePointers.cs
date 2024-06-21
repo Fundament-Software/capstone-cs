@@ -279,6 +279,35 @@ internal readonly struct WirePointer
         _ => throw new InvalidOperationException("Unknown pointer type.")
     };
 
+    /// <summary>
+    /// Traverses the pointer and returns the appropriate reader for the target.
+    /// </summary>
+    /// <typeparam name="TCap">The type of the capability table imbued in the reader.</typeparam>
+    /// <param name="state">The shared reader state.</param>
+    /// <param name="segmentId">The segment id of the pointer.</param>
+    /// <param name="pointerIndex">The index of the pointer in the segment.</param>
+    /// <returns>A reader for the target of the pointer.</returns>
+    public IReader<TCap> Traverse<TCap>(SharedReaderState state, int segmentId, Index pointerIndex) =>
+        this.tag switch
+        {
+            PointerType.Struct => new StructReader<TCap>(state, segmentId, pointerIndex, this.structPointer),
+            PointerType.List => this.listPointer.ElementSize switch
+            {
+                ListElementType.Void => new ListOfVoidReader<TCap>(state, segmentId, pointerIndex, this.listPointer),
+                ListElementType.Bit => new ListOfBooleanReader<TCap>(state, segmentId, pointerIndex, this.listPointer),
+                ListElementType.Byte => new ListOfPrimitiveReader<byte, TCap>(state, segmentId, pointerIndex, this.listPointer),
+                ListElementType.TwoBytes => new ListOfPrimitiveReader<short, TCap>(state, segmentId, pointerIndex, this.listPointer),
+                ListElementType.FourBytes => new ListOfPrimitiveReader<int, TCap>(state, segmentId, pointerIndex, this.listPointer),
+                ListElementType.EightBytes => new ListOfPrimitiveReader<long, TCap>(state, segmentId, pointerIndex, this.listPointer),
+                ListElementType.EightBytesPointer => new ListOfPointerReader<TCap>(state, segmentId, pointerIndex, this.listPointer),
+                ListElementType.Composite => new ListOfCompositeReader<TCap>(state, segmentId, pointerIndex, this.listPointer),
+                var unknown => throw new InvalidOperationException($"Unknown list element type {unknown}.")
+            },
+            PointerType.Far => throw new NotImplementedException("Far pointer traversal is not implemented."),
+            PointerType.Capability => throw new NotImplementedException("Capability pointer traversal is not implemented."),
+            var unknown => throw new InvalidOperationException($"Unknown pointer type {unknown}. This error should be impossible.")
+        };
+
     public override string ToString() => this.tag switch
     {
         PointerType.Struct => this.structPointer.ToString(),
