@@ -2,5 +2,4 @@
 
 public interface IReader<TCap>
 {
-
 }

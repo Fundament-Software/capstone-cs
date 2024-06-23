@@ -8,6 +8,7 @@ using System.Numerics;
 /// <remarks>
 /// In Cap'n Proto, struct values are aligned on to a multiple of their size, so the index is always in multiples of the size of the value being read.
 /// </remarks>
+/// <typeparam name="TCap">The type of the capability table imbued in the reader.</typeparam>
 public interface IStructReader<TCap> : IReader<TCap>
 {
     /// <summary>
@@ -55,10 +56,10 @@ public interface IStructReader<TCap> : IReader<TCap>
     /// <param name="index">The index in bits.</param>
     /// <param name="defaultValue">The default value of the bool field.</param>
     /// <remarks>
-    /// Unlike other Read* definitions in the interface, this method cannot have a default implementation because in Cap'n Proto, 
+    /// Unlike other Read* definitions in the interface, this method cannot have a default implementation because in Cap'n Proto,
     /// boolean values are stored as bits, whereas C# stores them as bytes.
     /// </remarks>
-    /// <returns></returns>
+    /// <returns>The boolean value stored at the provided index.</returns>
     public bool ReadBool(int index, bool defaultValue);
 
     /// <summary>
@@ -66,15 +67,15 @@ public interface IStructReader<TCap> : IReader<TCap>
     /// </summary>
     /// <param name="index">The index in bytes.</param>
     /// <param name="defaultValue">The default value of the Int8 field.</param>
-    /// <returns></returns>
+    /// <returns>The byte value stored at the provided index.</returns>
     public sbyte ReadInt8(int index, sbyte defaultValue) => this.ReadData(index, defaultValue);
 
     /// <summary>
     /// Reads a 16-bit signed integer from the struct at the given index from the start of the struct's data section.
     /// </summary>
-    /// <param name="index">The index in 4-bytes</param>
+    /// <param name="index">The index in 4-bytes.</param>
     /// <param name="defaultValue">The default value of the Int16 field.</param>
-    /// <returns></returns>
+    /// <returns>The short value stored at the provided index.</returns>
     public short ReadInt16(int index, short defaultValue) => this.ReadData(index, defaultValue);
 
     public int ReadInt32(int index, int defaultValue) => this.ReadData(index, defaultValue);
