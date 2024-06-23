@@ -100,13 +100,13 @@ public sealed class StructReader<TCap> : BaseReader<TCap, StructReader<TCap>>, I
     private WireSegmentSlice SliceDataSection(Index targetIndex, ushort dataSize)
     {
         var dataSectionRange = targetIndex..targetIndex.AddOffset(dataSize);
-        return this.SharedReaderState.WireMessage.Slice(this.segmentId, dataSectionRange);
+        return this.WireMessage.Slice(this.segmentId, dataSectionRange);
     }
 
     private WireSegmentSlice SlicePointerSection(Index targetIndex, ushort dataSize, ushort pointerSize)
     {
         var pointerSectionIndex = targetIndex.AddOffset(dataSize);
         var pointerSectionRange = pointerSectionIndex..pointerSectionIndex.AddOffset(pointerSize);
-        return this.SharedReaderState.WireMessage.Slice(this.segmentId, pointerSectionRange);
+        return this.WireMessage.Slice(this.segmentId, pointerSectionRange);
     }
 }

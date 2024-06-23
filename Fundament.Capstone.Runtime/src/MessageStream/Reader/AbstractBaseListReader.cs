@@ -59,12 +59,12 @@ where TSelf : AbstractBaseListReader<T, TCap, TSelf>
         try
         {
             var targetRange = this.TargetIndex..this.TargetIndex.AddOffset((int)pointer.SizeInWords);
-            return this.SharedReaderState.WireMessage.Slice(segmentId, targetRange);
+            return this.WireMessage.Slice(segmentId, targetRange);
         }
         catch (IndexOutOfRangeException e)
         {
             throw new PointerOffsetOutOfRangeException(
-                this.SharedReaderState.WireMessage[segmentId][pointerIndex],
+                this.WireMessage[segmentId][pointerIndex],
                 pointer.Offset,
                 pointerIndex,
                 e

@@ -50,7 +50,7 @@ public sealed class ListOfCompositeReader<TCap> : AbstractBaseListReader<StructR
 
     private (int Count, ushort DataSize, ushort PointerSize) DecodeTag(Index tagIndex)
     {
-        var tagWord = this.SharedReaderState.WireMessage[this.SegmentId][tagIndex];
+        var tagWord = this.WireMessage[this.SegmentId][tagIndex];
 
         var tag = StructPointer.Decode(tagWord);
         return (tag.Offset, tag.DataSize, tag.PointerSize);

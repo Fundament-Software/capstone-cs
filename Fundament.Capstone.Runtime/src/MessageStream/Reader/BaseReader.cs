@@ -24,5 +24,8 @@ where TSelf : BaseReader<TCap, TSelf>
 
     protected ILogger<TSelf> Logger { get; init; }
 
+    protected WireMessage WireMessage => this.SharedReaderState.WireMessage;
+
     private protected SharedReaderState SharedReaderState { get; init; }
+
 }
