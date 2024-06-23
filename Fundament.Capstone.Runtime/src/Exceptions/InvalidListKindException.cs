@@ -6,12 +6,12 @@ using System.Text;
 
 using Fundament.Capstone.Runtime.MessageStream;
 
-public class InvalidListKindException(
+public sealed class InvalidListKindException(
     Word word,
     ListElementType invalidListKind,
     IReadOnlySet<ListElementType> expectedKinds,
     Index? index = null,
-    Exception? innerException = null) : DecodeException(word, index, innerException)
+    Exception? innerException = null) : DecodeException(word, index, null, innerException)
 {
     public InvalidListKindException(Word word, ListElementType invalidListKind, ListElementType expectedKind, Index? index = null, Exception? innerException = null)
         : this(word, invalidListKind, new HashSet<ListElementType> { expectedKind }, index, innerException)

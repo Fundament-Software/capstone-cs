@@ -1,13 +1,12 @@
 namespace Fundament.Capstone.Runtime.Exceptions;
 
-using System.Data.Common;
 using System.Globalization;
 using System.Text;
 
 /// <summary>
 /// Exception thrown when a word decoded as a pointer has a type tag that does not match the expected type.
 /// </summary>
-public class TypeTagMismatchException(Word word, byte expectedType, Index? index = null) : DecodeException(word, index)
+public sealed class TypeTagMismatchException(Word word, byte expectedType, Index? index = null) : DecodeException(word, index)
 {
     public byte AcutalTypeTag => (byte)(this.Word & 3);
 
