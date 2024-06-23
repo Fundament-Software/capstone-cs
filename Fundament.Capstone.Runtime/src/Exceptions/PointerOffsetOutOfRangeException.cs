@@ -39,4 +39,12 @@ public class PointerOffsetOutOfRangeException(Word word, int targetOffset, Index
             return sb.ToString();
         }
     }
+
+    public static void ThrowIfOutOfRange(Word word, int targetOffset, int upperBound, Index? index = null)
+    {
+        if (targetOffset < 0 || targetOffset >= upperBound)
+        {
+            throw new PointerOffsetOutOfRangeException(word, targetOffset, index);
+        }
+    }
 }

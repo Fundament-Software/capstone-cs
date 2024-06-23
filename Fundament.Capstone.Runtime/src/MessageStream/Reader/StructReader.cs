@@ -93,11 +93,7 @@ public sealed class StructReader<TCap> : BaseReader<TCap, StructReader<TCap>>, I
         var pointerTargetIndex = pointerIndex.AddOffset(structPointer.Offset + 1);
         var normalizedPointerTargetIndex = pointerTargetIndex.GetOffset(segment.Length);
 
-        if (normalizedPointerTargetIndex < 0 || normalizedPointerTargetIndex >= segment.Length)
-        {
-            throw new PointerOffsetOutOfRangeException(segment[pointerIndex], normalizedPointerTargetIndex, pointerIndex);
-        }
-
+        PointerOffsetOutOfRangeException.ThrowIfOutOfRange(segment[pointerIndex], normalizedPointerTargetIndex, segment.Length, pointerIndex);
         return pointerTargetIndex;
     }
 
