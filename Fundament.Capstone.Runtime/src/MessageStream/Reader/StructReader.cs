@@ -87,9 +87,6 @@ public sealed class StructReader<TCap> : BaseReader<TCap, StructReader<TCap>>, I
 
     private static Index EvaluatePointerTarget(ReadOnlySpan<Word> segment, Index pointerIndex, StructPointer structPointer)
     {
-        // StructReader constructer and StructPointer is internal, so only run this check when developing the library.
-        Debug.Assert(segment[pointerIndex] == structPointer.AsWord, $"Expected word {segment[pointerIndex]:X} at index {pointerIndex} to equal {structPointer.AsWord:X}.");
-
         var pointerTargetIndex = pointerIndex.AddOffset(structPointer.Offset + 1);
         var normalizedPointerTargetIndex = pointerTargetIndex.GetOffset(segment.Length);
 
