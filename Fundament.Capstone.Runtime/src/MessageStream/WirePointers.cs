@@ -1,5 +1,6 @@
 namespace Fundament.Capstone.Runtime.MessageStream;
 
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using CommunityToolkit.Diagnostics;
@@ -50,6 +51,9 @@ internal readonly record struct StructPointer(int Offset, ushort DataSize, ushor
 
         return new StructPointer(offset, dataSize, pointerSize);
     }
+
+    public StructReader<TCap> Traverse<TCap>(SharedReaderState state, int segmentId, Index pointerIndex) =>
+        new(state, segmentId, pointerIndex, this);
 }
 
 /// <summary>
@@ -103,6 +107,20 @@ internal readonly record struct ListPointer(int Offset, ListElementType ElementS
         return new ListPointer(offset, elementSize, size);
     }
 
+    public IReader<TCap> Traverse<TCap>(SharedReaderState state, int segmentId, Index pointerIndex) =>
+        this.ElementSize switch
+        {
+            ListElementType.Void => new ListOfVoidReader<TCap>(state, segmentId, pointerIndex, this),
+            ListElementType.Bit => new ListOfBooleanReader<TCap>(state, segmentId, pointerIndex, this),
+            ListElementType.Byte => new ListOfPrimitiveReader<byte, TCap>(state, segmentId, pointerIndex, this),
+            ListElementType.TwoBytes => new ListOfPrimitiveReader<short, TCap>(state, segmentId, pointerIndex, this),
+            ListElementType.FourBytes => new ListOfPrimitiveReader<int, TCap>(state, segmentId, pointerIndex, this),
+            ListElementType.EightBytes => new ListOfPrimitiveReader<long, TCap>(state, segmentId, pointerIndex, this),
+            ListElementType.EightBytesPointer => new ListOfPointerReader<TCap>(state, segmentId, pointerIndex, this),
+            ListElementType.Composite => new ListOfCompositeReader<TCap>(state, segmentId, pointerIndex, this),
+            var unknown => throw new InvalidOperationException($"Unknown list element type {unknown}."),
+        };
+
     /// <summary>
     /// Helper method that validates the provided value is a valid ListElementType and converts it to the enum.
     /// </summary>
@@ -144,6 +162,9 @@ internal readonly record struct FarPointer(bool IsDoubleFar, uint Offset, uint S
 
         return new FarPointer(doubleFarFlag, offset, segmentId);
     }
+
+    public FarPointerReader<TCap> Traverse<TCap>(SharedReaderState state) =>
+        new(state, this);
 }
 
 internal readonly record struct CapabilityPointer(int CapabilityTableOffset)
@@ -290,20 +311,56 @@ internal readonly struct WirePointer
     public IReader<TCap> Traverse<TCap>(SharedReaderState state, int segmentId, Index pointerIndex) =>
         this.tag switch
         {
-            PointerType.Struct => new StructReader<TCap>(state, segmentId, pointerIndex, this.structPointer),
-            PointerType.List => this.listPointer.ElementSize switch
-            {
-                ListElementType.Void => new ListOfVoidReader<TCap>(state, segmentId, pointerIndex, this.listPointer),
-                ListElementType.Bit => new ListOfBooleanReader<TCap>(state, segmentId, pointerIndex, this.listPointer),
-                ListElementType.Byte => new ListOfPrimitiveReader<byte, TCap>(state, segmentId, pointerIndex, this.listPointer),
-                ListElementType.TwoBytes => new ListOfPrimitiveReader<short, TCap>(state, segmentId, pointerIndex, this.listPointer),
-                ListElementType.FourBytes => new ListOfPrimitiveReader<int, TCap>(state, segmentId, pointerIndex, this.listPointer),
-                ListElementType.EightBytes => new ListOfPrimitiveReader<long, TCap>(state, segmentId, pointerIndex, this.listPointer),
-                ListElementType.EightBytesPointer => new ListOfPointerReader<TCap>(state, segmentId, pointerIndex, this.listPointer),
-                ListElementType.Composite => new ListOfCompositeReader<TCap>(state, segmentId, pointerIndex, this.listPointer),
-                var unknown => throw new InvalidOperationException($"Unknown list element type {unknown}.")
-            },
-            PointerType.Far => throw new NotImplementedException("Far pointer traversal is not implemented."),
+            PointerType.Struct => this.structPointer.Traverse<TCap>(state, segmentId, pointerIndex),
+            PointerType.List => this.listPointer.Traverse<TCap>(state, segmentId, pointerIndex),
+            PointerType.Far => this.farPointer.Traverse<TCap>(state),
+            PointerType.Capability => throw new NotImplementedException("Capability pointer traversal is not implemented."),
+            var unknown => throw new InvalidOperationException($"Unknown pointer type {unknown}. This error should be impossible.")
+        };
+
+    /// <summary>
+    /// Composition of <see cref="Match"/> and <see cref="Traverse"/>.
+    /// </summary>
+    /// <typeparam name="TCap">The type of the capibility table imbued in the reader.</typeparam>
+    /// <param name="state">The shared reader state.</param>
+    /// <param name="segmentId">The segment id of the pointer.</param>
+    /// <param name="pointerIndex">The index of the pointer in the segment.</param>
+    /// <param name="onStruct">Function to execute on the struct pointer before traverse.</param>
+    /// <param name="onList">Function to execute on the list pointer before traverse.</param>
+    /// <param name="onFar">Function to execute on the far pointer before traverse.</param>
+    /// <param name="onCapability">Function to call the far pointer before traverse.</param>
+    /// <returns>A reader for the pointed object.</returns>
+    public IReader<TCap> MatchTraverse<TCap>(
+        SharedReaderState state,
+        int segmentId,
+        Index pointerIndex,
+        Func<StructPointer, StructPointer>? onStruct = null,
+        Func<ListPointer, ListPointer>? onList = null,
+        Func<FarPointer, FarPointer>? onFar = null,
+        Func<CapabilityPointer, CapabilityPointer>? onCapability = null) =>
+        this.tag switch
+        {
+            PointerType.Struct => (onStruct?.Invoke(this.structPointer) ?? this.structPointer).Traverse<TCap>(state, segmentId, pointerIndex),
+            PointerType.List => (onList?.Invoke(this.listPointer) ?? this.listPointer).Traverse<TCap>(state, segmentId, pointerIndex),
+            PointerType.Far => (onFar?.Invoke(this.farPointer) ?? this.farPointer).Traverse<TCap>(state),
+            PointerType.Capability => throw new NotImplementedException("Capability pointer traversal is not implemented."),
+            var unknown => throw new InvalidOperationException($"Unknown pointer type {unknown}. This error should be impossible.")
+        };
+
+    public IReader<TCap> MatchTraverse<TState, TCap>(
+        SharedReaderState state,
+        int segmentId,
+        Index pointerIndex,
+        TState functionState,
+        Func<TState, StructPointer, StructPointer>? onStruct = null,
+        Func<TState, ListPointer, ListPointer>? onList = null,
+        Func<TState, FarPointer, FarPointer>? onFar = null,
+        Func<TState, CapabilityPointer, CapabilityPointer>? onCapability = null) =>
+        this.tag switch
+        {
+            PointerType.Struct => (onStruct?.Invoke(functionState, this.structPointer) ?? this.structPointer).Traverse<TCap>(state, segmentId, pointerIndex),
+            PointerType.List => (onList?.Invoke(functionState, this.listPointer) ?? this.listPointer).Traverse<TCap>(state, segmentId, pointerIndex),
+            PointerType.Far => (onFar?.Invoke(functionState, this.farPointer) ?? this.farPointer).Traverse<TCap>(state),
             PointerType.Capability => throw new NotImplementedException("Capability pointer traversal is not implemented."),
             var unknown => throw new InvalidOperationException($"Unknown pointer type {unknown}. This error should be impossible.")
         };
