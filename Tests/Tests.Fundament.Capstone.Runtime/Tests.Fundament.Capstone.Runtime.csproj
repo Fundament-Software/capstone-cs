@@ -11,5 +11,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Fundament.Capstone.Runtime\Fundament.Capstone.Runtime.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="resources/" />
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
