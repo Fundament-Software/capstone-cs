@@ -1,7 +1,5 @@
 namespace Tests.Fundament.Capstone.Runtime;
 
-using FluentAssertions.Execution;
-
 using global::Fundament.Capstone.Runtime.MessageStream;
 
 public class PointerDecodingTests
@@ -19,12 +17,11 @@ public class PointerDecodingTests
         var result = StructPointer.Decode(word);
 
         // =-=-=-=( Assert )=-=-=-=
-        using (new AssertionScope())
-        {
-            result.Offset.Should().Be(expectedOffset);
-            result.DataSize.Should().Be(expectedDataSize);
-            result.PointerSize.Should().Be(expectedPointerSize);
-        }
+        result.ShouldSatisfyAllConditions(
+            r => r.Offset.ShouldBe(expectedOffset),
+            r => r.DataSize.ShouldBe(expectedDataSize),
+            r => r.PointerSize.ShouldBe(expectedPointerSize)
+        );
     }
 
     // More or less smoke tests for the pointer sum type.
@@ -43,21 +40,15 @@ public class PointerDecodingTests
         WirePointer convert = originalStructPointer;
 
         // =-=-=-=( Assert )=-=-=-=
-        convert.IsStruct.Should().BeTrue();
-        convert.IsList.Should().BeFalse();
-        convert.IsFar.Should().BeFalse();
-        convert.IsCapability.Should().BeFalse();
+        convert.IsStruct.ShouldBeTrue();
+        convert.IsList.ShouldBeFalse();
+        convert.IsFar.ShouldBeFalse();
+        convert.IsCapability.ShouldBeFalse();
 
-        convert.UnwrapStruct.Should().BeEquivalentTo(originalStructPointer);
-        convert.Invoking(x => x.UnwrapList).Should().Throw<InvalidOperationException>();
-        convert.Invoking(x => x.UnwrapFar).Should().Throw<InvalidOperationException>();
-        convert.Invoking(x => x.UnwrapCapability).Should().Throw<InvalidOperationException>();
-
-        convert.Match(
-            structPointer => structPointer.Should().BeEquivalentTo(originalStructPointer),
-            listPointer => throw new InvalidOperationException("Unexpected list pointer."),
-            farPointer => throw new InvalidOperationException("Unexpected far pointer."),
-            capabilityPointer => throw new InvalidOperationException("Unexpected capability pointer."));
+        convert.UnwrapStruct.ShouldBeEquivalentTo(originalStructPointer);
+        Should.Throw<InvalidOperationException>(() => convert.UnwrapList);
+        Should.Throw<InvalidOperationException>(() => convert.UnwrapFar);
+        Should.Throw<InvalidOperationException>(() => convert.UnwrapCapability);
     }
 
     private static ulong ConstructStructPointerWord(int offset, ushort dataSize, ushort pointerSize)

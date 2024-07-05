@@ -1,9 +1,8 @@
 coverlet.collector
-FluentAssertions
-FluentAssertions.Analyzers
 MartinCostello.Logging.XUnit
 Microsoft.NET.Test.Sdk
 xunit
 xunit.analyzers
 xunit.runner.visualstudio
 StyleCop.Analyzers
+Shouldly

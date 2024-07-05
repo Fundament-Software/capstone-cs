@@ -2,11 +2,7 @@
 
 using System.Collections.Immutable;
 
-using FluentAssertions.Execution;
-
 using global::Fundament.Capstone.Runtime.MessageStream;
-
-using Xunit.Abstractions;
 
 public class MessageStreamReaderTests(ITestOutputHelper outputHelper)
 {
@@ -29,11 +25,7 @@ public class MessageStreamReaderTests(ITestOutputHelper outputHelper)
 
         var message = await sut.ReadMessageAsync();
 
-        using (new AssertionScope()) {
-            message.Segments.Should().ContainSingle();
-            message.GetSegmentContents(0).Should().ContainSingle();
-            message.GetSegmentContents(0).Should().Equal(EmptyStructPointer);
-        }
+        message.Segments.ShouldBe([[EmptyStructPointer]]);
     }
 
     [Fact]
@@ -50,14 +42,8 @@ public class MessageStreamReaderTests(ITestOutputHelper outputHelper)
         using var stream = new MemoryStream(bytes);
         var sut = new StreamMessageReader(stream, outputHelper.ToLogger<StreamMessageReader>());
 
-        var message = await sut.ReadMessageAsync(); 
+        var message = await sut.ReadMessageAsync();
 
-        using (new AssertionScope()) {
-            message.Segments.Should().HaveCount(2);
-            message.GetSegmentContents(0).Should().ContainSingle();
-            message.GetSegmentContents(1).Should().ContainSingle();
-            message.GetSegmentContents(0).Should().Equal(EmptyStructPointer);
-            message.GetSegmentContents(1).Should().Equal(EmptyStructPointer);
-        }
+        message.Segments.ShouldBe([[EmptyStructPointer], [EmptyStructPointer]]);
     }
 }

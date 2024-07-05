@@ -6,7 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Using Include="Xunit" />
-    <Using Include="FluentAssertions" />
+    <Using Include="Xunit.Abstractions" />
+    <Using Include="Shouldly" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Fundament.Capstone.Runtime\Fundament.Capstone.Runtime.csproj" />

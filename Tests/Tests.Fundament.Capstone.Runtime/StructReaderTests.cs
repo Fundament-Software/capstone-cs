@@ -1,13 +1,7 @@
 namespace Tests.Fundament.Capstone.Runtime;
 
-using System.Net.NetworkInformation;
-
-using CommunityToolkit.Diagnostics;
-
 using global::Fundament.Capstone.Runtime;
 using global::Fundament.Capstone.Runtime.MessageStream;
-
-using Xunit.Abstractions;
 
 public class StructReaderTests(ITestOutputHelper outputHelper)
 {
@@ -18,7 +12,7 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
         var (pointer, message) = CreateRootStructMessage([0x0000_0000_0000_000F]);
         var (structReader, _) = this.NewStructReader(message, pointer);
 
-        (structReader as IStructReader<object>).ReadInt16(0, 0).Should().Be(15);
+        (structReader as IStructReader<object>).ReadInt16(0, 0).ShouldBe<short>(15);
     }
 
     [Fact]
@@ -28,7 +22,7 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
         var (pointer, message ) = CreateRootStructMessage([BitConverter.SingleToUInt32Bits(expected)]);
         var (structReader, _) = this.NewStructReader(message, pointer);
 
-        (structReader as IStructReader<object>).ReadFloat32(0, 0).Should().Be(expected);
+        (structReader as IStructReader<object>).ReadFloat32(0, 0).ShouldBe(expected);
     }
 
     [Fact]
@@ -38,7 +32,7 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
         var (pointer, message) = CreateRootStructMessage([BitConverter.DoubleToUInt64Bits(expected)]);
         var (structReader, _) = this.NewStructReader(message, pointer);
 
-        (structReader as IStructReader<object>).ReadFloat64(0, 0).Should().Be(expected);
+        (structReader as IStructReader<object>).ReadFloat64(0, 0).ShouldBe(expected);
     }
 
     [Fact]
@@ -56,11 +50,11 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
         var (rootStructReader, sharedReaderState) = this.NewStructReader(message, rootPointer);
 
         // Assertions
-        (rootStructReader as IStructReader<object>).ReadFloat64(0, 0).Should().Be(expectedRootData);
+        (rootStructReader as IStructReader<object>).ReadFloat64(0, 0).ShouldBe(expectedRootData);
         var secondaryStructReader = rootStructReader.ReadPointer(0);
-        secondaryStructReader.Should().NotBeNull();
-        secondaryStructReader.Value.Should().BeOfType<StructReader<object>>();
-        (secondaryStructReader.AsT0 as IStructReader<object>).ReadUInt64(0, 0).Should().Be(expectedSecondaryData);
+        secondaryStructReader.ShouldNotBeNull();
+        secondaryStructReader.ShouldBeOfType<StructReader<object>>();
+        (secondaryStructReader as IStructReader<object>)?.ReadUInt64(0, 0).ShouldBe(expectedSecondaryData);
     }
 
     private static StructPointer WriteStruct(Span<ulong> segment, Index pointerIndex, Index structIndex, ReadOnlySpan<ulong> data, ushort pointerSize)

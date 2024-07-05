@@ -3,8 +3,6 @@
 using global::Fundament.Capstone.Runtime;
 using global::Fundament.Capstone.Runtime.MessageStream;
 
-using Xunit.Abstractions;
-
 public class ListOfReaderTests(ITestOutputHelper outputHelper)
 {
     [Fact]
@@ -25,6 +23,6 @@ public class ListOfReaderTests(ITestOutputHelper outputHelper)
         };
         var reader = new ListOfPrimitiveReader<int, Unit>(sharedReaderState, 0, 0, listPointer);
 
-        reader.Should().Equal(1, 2, 3, 4, 5, 6);
+        reader.ShouldBe([1, 2, 3, 4, 5, 6]);
     }
 }
