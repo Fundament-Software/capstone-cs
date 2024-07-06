@@ -6,3 +6,4 @@ xunit.analyzers
 xunit.runner.visualstudio
 StyleCop.Analyzers
 Shouldly
+CliWrap
