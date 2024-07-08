@@ -1,0 +1,5 @@
+Microsoft.CodeAnalysis.Analyzers copy_local: true
+Microsoft.CodeAnalysis.CSharp copy_local: true
+IsExternalInit
+Nullable
+Microsoft.Bcl.HashCode

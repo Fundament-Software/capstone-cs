@@ -5,7 +5,11 @@ storage: none
 nuget CliWrap ~> 3.6
 nuget CommunityToolkit.Diagnostics ~> 8.2
 nuget CommunityToolkit.HighPerformance ~> 8.2
+nuget IsExternalInit
+nuget Microsoft.CodeAnalysis.Analyzers 3.11.0-beta1.24225.1 beta
+nuget Microsoft.CodeAnalysis.CSharp 4.11.0-2.final final
 nuget Microsoft.Extensions.Logging ~> 8.0
+nuget Nullable
 nuget OneOf ~> 3.0
 nuget OneOf.SourceGenerator
 nuget StyleCop.Analyzers 1.2.0-beta.556 beta
