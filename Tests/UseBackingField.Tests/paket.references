@@ -1,0 +1,8 @@
+coverlet.collector
+Microsoft.NET.Test.Sdk
+StyleCop.Analyzers
+Verify.SourceGenerators
+Verify.Xunit
+xunit
+xunit.analyzers
+xunit.runner.visualstudio

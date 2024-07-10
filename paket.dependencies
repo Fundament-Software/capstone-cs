@@ -19,5 +19,7 @@ nuget coverlet.collector
 nuget MartinCostello.Logging.XUnit
 nuget Microsoft.NET.Test.Sdk
 nuget Shouldly ~> 4.2
+nuget Verify.SourceGenerators
+nuget Verify.Xunit
 nuget xunit
 nuget xunit.runner.visualstudio
