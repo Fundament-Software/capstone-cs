@@ -1,4 +1,5 @@
 coverlet.collector
+Microsoft.CodeAnalysis.CSharp
 Microsoft.NET.Test.Sdk
 StyleCop.Analyzers
 Verify.SourceGenerators
