@@ -1,15 +1,9 @@
 ﻿namespace UseBackingField.Tests;
 
-using System.Runtime.CompilerServices;
-
 using Microsoft.CodeAnalysis.CSharp;
 
 public class UseBackingFieldSnapshotTests
 {
-    [ModuleInitializer]
-    public static void Init() =>
-        VerifySourceGenerators.Initialize();
-
     [Fact]
     public async Task TestSimpleClass()
     {
