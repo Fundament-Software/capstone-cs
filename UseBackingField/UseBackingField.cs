@@ -71,12 +71,14 @@ internal readonly record struct ClassToGenerate(
 [Generator]
 public class BackingFieldsGenerator : IIncrementalGenerator
 {
+    public static readonly string FullyQualifiedAttributeName = $"{nameof(UseBackingField)}.{nameof(GenerateBackingFieldsAttribute)}";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Get the classes with the attribute
         var classDeclarations = context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                "UseBackingField.UseBackingFieldAttribute",
+                FullyQualifiedAttributeName,
                 NodePredicate,
                 transform: static (ctx, _) => ClassToGenerate.FromContext(ctx)
             );
