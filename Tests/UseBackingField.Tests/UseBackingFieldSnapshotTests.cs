@@ -1,8 +1,11 @@
 ﻿namespace UseBackingField.Tests;
 
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-public class UseBackingFieldSnapshotTests
+using Xunit.Abstractions;
+
+public class UseBackingFieldSnapshotTests(ITestOutputHelper outputHelper)
 {
     [Fact]
     public async Task TestSimpleClass()
@@ -23,22 +26,44 @@ public class UseBackingFieldSnapshotTests
         }
         """;
 
-        var driver = GeneratorDriver(source);
+        var driver = GeneratorDriver(source, outputHelper);
         await Verify(driver);
     }
 
-    public static CSharpGeneratorDriver GeneratorDriver(string source)
+    public static GeneratorDriver GeneratorDriver(string source, ITestOutputHelper outputHelper)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source);
         var compilation = CSharpCompilation.Create(
             assemblyName: "Tests",
-            syntaxTrees: [syntaxTree]
+            syntaxTrees: [syntaxTree],
+            references: [
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(FindAssemblyLocationByName("netstandard")),
+                MetadataReference.CreateFromFile(FindAssemblyLocationByName("System.Runtime")),
+                MetadataReference.CreateFromFile(typeof(GenerateBackingFieldsAttribute).Assembly.Location),
+            ],
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
         );
 
         var generator = new BackingFieldsGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGenerators(compilation);
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var generatorCompilation, out var diagnostics);
+
+        var result = driver.GetRunResult();
+        if (result.Results[0].GeneratedSources.Length <= 0)
+        {
+            var compilationDiagnostics = generatorCompilation.GetDiagnostics();
+            foreach (var diagnostic in compilationDiagnostics)
+            {
+                outputHelper.WriteLine(diagnostic.ToString());
+            }
+
+            throw new InvalidOperationException("No generated sources");
+        }
 
         return driver;
     }
+
+    public static string FindAssemblyLocationByName(string name) =>
+        AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == name).Location;
 }
