@@ -1,6 +1,6 @@
 ﻿namespace Fundament.Capstone.Runtime.MessageStream;
 
-public sealed class FarPointerReader<TCap> : BaseReader<TCap, FarPointerReader<TCap>>, IFarPointerReader<TCap>
+public sealed class FarPointerReader<TCap> : BaseReader<TCap, FarPointerReader<TCap>>
 {
     // The pointer that this far pointer points to. If this is a double-far pointer, then this is the tag word.
     private readonly WirePointer landingPad;
