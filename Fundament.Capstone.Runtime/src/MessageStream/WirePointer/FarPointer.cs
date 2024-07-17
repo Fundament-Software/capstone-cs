@@ -18,6 +18,8 @@ internal readonly record struct FarPointer(bool IsDoubleFar, uint Offset, uint S
     /// Decodes a far pointer from a segment.
     /// The caller must validate the segment id and offset, as this method is unable to check bounds outside of the provided segment.
     /// </summary>
+    /// <param name="word">The word to decode.</param>
+    /// <returns>The data encoded in the word as a <c>FarPointer</c>.</returns>
     /// <exception cref="TypeTagMismatchException">If the tag of the word does not match the expected tag.</exception>
     public static FarPointer Decode(Word word)
     {
@@ -33,6 +35,70 @@ internal readonly record struct FarPointer(bool IsDoubleFar, uint Offset, uint S
         return new FarPointer(doubleFarFlag, offset, segmentId);
     }
 
-    public FarPointerReader<TCap> Traverse<TCap>(SharedReaderState state) =>
-        new(state, this);
+    /*
+    Honestly, I kinda don't like the Pointer types having methods defined on them to define traversal
+    Because I think it violates Single-Responsibility, and I think that's especially apparent here in FarPointer.
+    These types are intended to be simple data types which store data extracted from Cap'n'Proto words, with minimal
+    dependencies.
+
+    But, we have to have a single place to define how to traverse pointers, otherwise every Reader would define it's
+    own traversal method. And the simplest, idiomatic, and most efficient way to do so, is to just define plain, normal
+    instance methods on a type.
+    */
+
+    public IReader<TCap> Traverse<TCap>(SharedReaderState state)
+    {
+        if (this.IsDoubleFar)
+        {
+            var (tag, tagWord, targetOffset, targetSegmentId) = this.DecodeDoubleFar(state.WireMessage);
+            return tag.Match(
+                structPointer => (structPointer with { Offset = targetOffset }).Traverse<TCap>(state, targetSegmentId, 0),
+                listPointer => (listPointer with { Offset = targetOffset }).Traverse<TCap>(state, targetSegmentId, 0),
+                farPointer => throw new InvalidPointerTypeException(tagWord, message: "Expected tag word to be a struct, list, or capability pointer."),
+                capPointer => throw new NotImplementedException("Capability pointers are not yet supported.")
+            );
+        }
+        else
+        {
+            return this
+                .DecodeSingleFar(state.WireMessage)
+                .Traverse<TCap>(state, (int)this.SegmentId, (int)this.Offset);
+        }
+    }
+
+    private (WirePointer Tag, Word TagWord, int TargetOffset, int TargetSegmentId) DecodeDoubleFar(WireMessage wireMessage)
+    {
+        var landingPadWords = this.GetTarget(wireMessage, 2);
+
+        // The first word should be another single-far pointer which points to the start of the object's content.
+        var (_, targetOffset, targetSegmentId) = this.DecodeDoubleFarLandingPad(landingPadWords[0]);
+
+        // The second word is a tag word, which is an object pointer with an offset of zero that describes the object.
+        var tagWord = landingPadWords[1];
+        var tag = WirePointer.Decode(tagWord);
+
+        return (tag, tagWord, (int)targetOffset, (int)targetSegmentId);
+    }
+
+    private WirePointer DecodeSingleFar(WireMessage wireMessage) => WirePointer.Decode(this.GetTarget(wireMessage));
+
+    private FarPointer DecodeDoubleFarLandingPad(Word pointerWord)
+    {
+        var offset = (int)this.Offset;
+        var pointer = Decode(pointerWord);
+
+        return pointer.IsDoubleFar
+            ? throw new InvalidPointerTypeException(
+                pointerWord,
+                offset,
+                $"Expected first word of double-far landing pad (0x{pointerWord}:X at index {offset}) to be a single-far pointer.")
+            : pointer;
+    }
+
+    private Word[] GetTargetSegment(WireMessage wireMessage) => wireMessage[(int)this.SegmentId];
+
+    private Span<Word> GetTarget(WireMessage wireMessage, int length) =>
+        this.GetTargetSegment(wireMessage).AsSpan((int)this.Offset, length);
+
+    private Word GetTarget(WireMessage wireMessage) => this.GetTargetSegment(wireMessage)[(int)this.Offset];
 }
