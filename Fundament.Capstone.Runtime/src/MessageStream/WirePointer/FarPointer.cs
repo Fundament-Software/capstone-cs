@@ -14,6 +14,12 @@ using Fundament.Capstone.Runtime.Exceptions;
 /// <param name="SegmentId">The id of the target segment.</param>
 internal readonly record struct FarPointer(bool IsDoubleFar, uint Offset, uint SegmentId)
 {
+    public Word AsWord =>
+        ((Word)PointerType.Far) |
+        (this.IsDoubleFar ? 1UL << 2 : 0) |
+        (this.Offset & Bits.BitMaskOf(29)) << 3 |
+        (this.SegmentId & Bits.BitMaskOf(32)) << 32;
+
     /// <summary>
     /// Decodes a far pointer from a segment.
     /// The caller must validate the segment id and offset, as this method is unable to check bounds outside of the provided segment.
