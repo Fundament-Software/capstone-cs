@@ -60,25 +60,31 @@ public class StructReaderTests(ITestOutputHelper outputHelper)
     [Fact]
     public void ReadsStructPointerFromAFar()
     {
-        const int rootStructPointerSize = 1;
-
-        const int farStructPointerIndex = 0;
-        const int farStructOffset = 2;
-        const int farStructPointerSize = 0;
-        const int farStructDataSize = 1;
         const int farStructData = 45;
-        var message = new WireMessage([
-            new ulong[1 + rootStructPointerSize],
-            new ulong[farStructPointerIndex + 1 + farStructOffset + farStructPointerSize + farStructDataSize]
-        ]);
-
-        WriteStruct(message[1], farStructPointerIndex, farStructOffset + 1, [farStructData], 0);
-
-        var farStructPointer = new FarPointer(false, 0, 1);
-        message[0][1] = farStructPointer.AsWord;
 
         var rootStructPointer = new StructPointer(0, 0, 1);
-        message[0][0] = rootStructPointer.AsWord;
+        var message = new WireMessage([
+            [rootStructPointer.AsWord, new FarPointer(false, 0, 1).AsWord],
+            [new StructPointer(2, 1, 0).AsWord, 0, 0, farStructData]
+        ]);
+
+        var (rootStructReader, _) = this.NewStructReader(message, rootStructPointer);
+
+        var farStructReader = rootStructReader.ReadPointer(0) as StructReader<object>;
+        farStructReader.ShouldNotBeNull();
+        farStructReader.ReadData(0, 0).ShouldBe(farStructData);
+    }
+
+    [Fact]
+    public void ReadsStructPointerFromADoubleFar()
+    {
+        const int farStructData = 45;
+        var rootStructPointer = new StructPointer(0, 0, 1);
+        var message = new WireMessage([
+            [rootStructPointer.AsWord, new FarPointer(true, 0, 1).AsWord],
+            [new FarPointer(false, 2, 2).AsWord, new StructPointer(0, 1, 0).AsWord],
+            [0, 0, farStructData]
+        ]);
 
         var (rootStructReader, _) = this.NewStructReader(message, rootStructPointer);
 
