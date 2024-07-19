@@ -58,8 +58,8 @@ internal readonly record struct FarPointer(bool IsDoubleFar, uint Offset, uint S
         {
             var (tag, tagWord, targetOffset, targetSegmentId) = this.DecodeDoubleFar(state.WireMessage);
             return tag.Match(
-                structPointer => (structPointer with { Offset = targetOffset }).Traverse<TCap>(state, targetSegmentId, 0),
-                listPointer => (listPointer with { Offset = targetOffset }).Traverse<TCap>(state, targetSegmentId, 0),
+                structPointer => (structPointer with { Offset = targetOffset - 1 }).Traverse<TCap>(state, targetSegmentId, 0),
+                listPointer => (listPointer with { Offset = targetOffset - 1 }).Traverse<TCap>(state, targetSegmentId, 0),
                 farPointer => throw new InvalidPointerTypeException(tagWord, message: "Expected tag word to be a struct, list, or capability pointer."),
                 capPointer => throw new NotImplementedException("Capability pointers are not yet supported.")
             );
