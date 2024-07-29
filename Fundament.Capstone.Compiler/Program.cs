@@ -5,9 +5,13 @@ using System.Reflection;
 using Capnp;
 using Capnp.Schema;
 
+using Microsoft.Extensions.Logging;
+
 public static class Program 
 {
     public static readonly string VersionLine = $"Capstone C# Compiler Plugin Version {Assembly.GetExecutingAssembly().GetName().Version}";
+
+    public static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder => builder.AddSimpleConsole(options => options.SingleLine = true));
 
     public static int Main(string[] args)
     {

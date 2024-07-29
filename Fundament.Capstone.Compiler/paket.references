@@ -1,1 +1,3 @@
 Capnp.Net.Runtime
+Microsoft.Extensions.Logging
+Microsoft.Extensions.Logging.Console
