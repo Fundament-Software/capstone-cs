@@ -27,7 +27,7 @@ public class ModelBuilder(CodeGeneratorRequest.READER reader, ILogger<ModelBuild
         var leafNodes = this.NodeReaderById.Where(kvp => !internalNodes.Contains(kvp.Key)).Select(kvp => kvp.Value);
 
         // Construct the nodes from the bottom up using a queue, instead of using recursion
-        // because C# doesn't have tail-call optimization (but the CLR does!)
+        // because C# doesn't have tail-call optimization (the CLR does! but C# doesn't expose it)
         var constructedNodes = new Dictionary<Word, INode>();
         var nodeQueue = new Queue<Node.READER>(leafNodes);
         while (nodeQueue.TryDequeue(out var reader))
