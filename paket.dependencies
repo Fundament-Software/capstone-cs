@@ -2,6 +2,7 @@ source https://api.nuget.org/v3/index.json
 
 storage: none
 
+nuget Argu
 nuget Capnp.Net.Runtime
 nuget CliWrap ~> 3.6
 nuget CommunityToolkit.Diagnostics ~> 8.2
