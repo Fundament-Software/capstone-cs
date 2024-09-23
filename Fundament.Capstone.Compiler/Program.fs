@@ -55,5 +55,9 @@ let reader =
     |> DeserializerState.CreateRoot
     |> CodeGeneratorRequest.READER.create
 
+for file in reader.RequestedFiles do
+    let imports = file.Imports |> Seq.map (fun i -> $"Name: {i.Name} - Id: {i.Id}")
+    printfn $"File: {file.Filename} Id: {file.Id} Imports: %A{imports}"
+
 for node in reader.Nodes do
-    printfn $"Node: {node.which} {node.DisplayName} Id: {node.Id} ParentId: {node.ScopeId}"
+    printfn $"{node.which} Node: {node.DisplayName} Id: {node.Id} ParentId: {node.ScopeId}"
