@@ -286,7 +286,7 @@ type Node =
       Annotations: Annotation list
       Variant: NodeVariant }
 
-    static let Read nameTable (reader: Capnp.Schema.Node.READER) =
+    static member Read nameTable (reader: Capnp.Schema.Node.READER) =
         { Id = reader.Id
           DisplayName = reader.DisplayName
           DisplayNamePrefixLength = reader.DisplayNamePrefixLength
@@ -386,7 +386,7 @@ and NodeVariant =
                 annotationReader.TargetsAnnotation
             )
 
-let buildModel (reader: CodeGeneratorRequest.READER) =
+let buildModel (reader: CodeGeneratorRequest.READER) : RoseForest<Node> =
     // Answers the question "What is the name of the node with this Id"
     let nameTable =
         reader.Nodes
@@ -394,6 +394,9 @@ let buildModel (reader: CodeGeneratorRequest.READER) =
         |> fold (fun table nnr -> Map.add nnr.Id nnr.Name table) Map.empty
 
     let nodeTable = reader.Nodes |> Seq.map (fun reader -> reader.Id, reader) |> Map
+
+    let rootNodes =
+        reader.Nodes |> Seq.filter (fun reader -> reader.ScopeId = 0UL) |> List.ofSeq
 
     // Answers the question "What are the children of the node with this Id"
     let childrenTable =
@@ -404,7 +407,12 @@ let buildModel (reader: CodeGeneratorRequest.READER) =
 
         Seq.fold foldFn Map.empty reader.Nodes
 
-    // Recursively builds a tree of nodes rooted at the give id
-    // let buildTree id =
+    // Recursively builds a tree of nodes rooted at the given node reader
+    let rec buildTree (reader: Capnp.Schema.Node.READER) =
+        { Root = Node.Read nameTable reader
+          Children =
+            childrenTable[reader.Id]
+            |> List.map (fun childId -> nodeTable[childId])
+            |> List.map buildTree }
 
-    ()
+    rootNodes |> List.map buildTree
