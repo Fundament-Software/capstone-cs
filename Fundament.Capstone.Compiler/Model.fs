@@ -279,6 +279,7 @@ type Method =
 
 type Node =
     { Id: Id
+      SymbolName: string option
       DisplayName: string
       DisplayNamePrefixLength: uint32
       Parameters: string list
@@ -288,12 +289,13 @@ type Node =
 
     static member Read nameTable (reader: Capnp.Schema.Node.READER) =
         { Id = reader.Id
+          SymbolName = Map.tryFind reader.Id nameTable
           DisplayName = reader.DisplayName
           DisplayNamePrefixLength = reader.DisplayNamePrefixLength
           Parameters = readList reader.Parameters (fun reader -> reader.Name)
           IsGeneric = reader.IsGeneric
           Annotations = readList reader.Annotations Annotation.Read
-          Variant = NodeVariant.Read nameTable reader }
+          Variant = NodeVariant.Read reader }
 
 // Exists so we can pattern match on the variant without having to repeat the reader type names
 and private NodeVariantReader =
@@ -317,18 +319,16 @@ and private NodeVariantReader =
 and NodeVariant =
     | File
     | Struct of
-        Name: string *
         DataWordCount: uint16 *
         PointerCount: uint16 *
         IsGroup: bool *
         DiscriminantCount: uint16 *
         DiscriminantOffset: uint32 *
         Fields: Field list
-    | Enum of Name: string * Enumerant list
-    | Interface of Name: string * Methods: Method list * Superclasses: Superclass list
-    | Const of Name: string * Type: Type * Value: Value
+    | Enum of Enumerant list
+    | Interface of Methods: Method list * Superclasses: Superclass list
+    | Const of Type: Type * Value: Value
     | Annotation of
-        Name: string *
         Type: Type *
         // TODO: Can an annotation target multiple things at once? Or can this be compressed into an enum in the object model?
         TargetsFile: bool *
@@ -344,14 +344,11 @@ and NodeVariant =
         TargetsParam: bool *
         TargetsAnnotation: bool
 
-    static member Read nameTable (reader: Capnp.Schema.Node.READER) =
-        let name = lazy (Map.find reader.Id nameTable)
-
+    static member Read(reader: Capnp.Schema.Node.READER) =
         match NodeVariantReader.FromReader reader with
         | NodeVariantReader.File -> File
         | NodeVariantReader.Struct(structReader) ->
             Struct(
-                name.Value,
                 structReader.DataWordCount,
                 structReader.PointerCount,
                 structReader.IsGroup,
@@ -359,18 +356,15 @@ and NodeVariant =
                 structReader.DiscriminantOffset,
                 []
             )
-        | NodeVariantReader.Enum(enumReader) -> Enum(name.Value, readList enumReader.Enumerants Enumerant.Read)
+        | NodeVariantReader.Enum(enumReader) -> Enum(readList enumReader.Enumerants Enumerant.Read)
         | NodeVariantReader.Interface(interfaceReader) ->
             Interface(
-                name.Value,
                 readList interfaceReader.Methods Method.Read,
                 readList interfaceReader.Superclasses Superclass.Read
             )
-        | NodeVariantReader.Const(constReader) ->
-            Const(name.Value, Type.Read constReader.Type, Value.Read constReader.Value)
+        | NodeVariantReader.Const(constReader) -> Const(Type.Read constReader.Type, Value.Read constReader.Value)
         | NodeVariantReader.Annotation(annotationReader) ->
             Annotation(
-                name.Value,
                 Type.Read annotationReader.Type,
                 annotationReader.TargetsFile,
                 annotationReader.TargetsConst,
