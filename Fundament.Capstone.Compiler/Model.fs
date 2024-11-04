@@ -70,6 +70,41 @@ type Value =
         | Value.WHICH.AnyPointer -> NOTDONE
         | x -> outOfRange (int32 x)
 
+type Brand = 
+    { Scopes: BrandScope list}
+
+    static member Read(reader: Capnp.Schema.Brand.READER) =
+        { Scopes = reader.Scopes |> Seq.map BrandScope.Read |> List.ofSeq }
+
+/// Corresponds to "Brand.Scope" in the schema 
+and BrandScope =
+    { ScopeId: Id
+      Variant: BrandScopeVariant }
+    static member Read(reader: Capnp.Schema.Brand.Scope.READER) =
+        { ScopeId = reader.ScopeId; Variant = BrandScopeVariant.Read reader }
+
+/// Corresponds to the union inside "Brand.Scope" in the schema 
+and BrandScopeVariant =
+    | Bind of BrandBinding list
+    | Inherit
+
+    static member Read(reader: Capnp.Schema.Brand.Scope.READER) =
+        match reader.which with
+        | Brand.Scope.WHICH.Bind -> Bind(reader.Bind |> Seq.map BrandBinding.Read |> List.ofSeq)
+        | Brand.Scope.WHICH.Inherit -> Inherit
+        | x -> outOfRange (int32 x)
+
+/// Corresponds to "Brand.Binding" in the schema 
+and BrandBinding =
+    | Unbound
+    | Type of Type
+
+    static member Read(reader: Capnp.Schema.Brand.Binding.READER) =
+        match reader.which with
+        | Brand.Binding.WHICH.Unbound -> Unbound
+        | Brand.Binding.WHICH.Type -> Type(Type.Read reader.Type)
+        | x -> outOfRange (int32 x)
+
 type Type =
     | Void
     | Bool
@@ -137,41 +172,6 @@ and AnyPointerType =
             | x -> outOfRange (int32 x)
         | Type.anyPointer.WHICH.Parameter -> Parameter(reader.Parameter.ScopeId, reader.Parameter.ParameterIndex)
         | Type.anyPointer.WHICH.ImplicitMethodParameter -> ImplicitMethodParameter(reader.ImplicitMethodParameter.ParameterIndex)
-        | x -> outOfRange (int32 x)
-
-and Brand = 
-    { Scopes: BrandScope list}
-
-    static member Read(reader: Capnp.Schema.Brand.READER) =
-        { Scopes = reader.Scopes |> Seq.map BrandScope.Read |> List.ofSeq }
-
-/// Corresponds to "Brand.Scope" in the schema 
-and BrandScope =
-    { ScopeId: Id
-      Variant: BrandScopeVariant }
-    static member Read(reader: Capnp.Schema.Brand.Scope.READER) =
-        { ScopeId = reader.ScopeId; Variant = BrandScopeVariant.Read reader }
-
-/// Corresponds to the union inside "Brand.Scope" in the schema 
-and BrandScopeVariant =
-    | Bind of BrandBinding list
-    | Inherit
-
-    static member Read(reader: Capnp.Schema.Brand.Scope.READER) =
-        match reader.which with
-        | Brand.Scope.WHICH.Bind -> Bind(reader.Bind |> Seq.map BrandBinding.Read |> List.ofSeq)
-        | Brand.Scope.WHICH.Inherit -> Inherit
-        | x -> outOfRange (int32 x)
-
-/// Corresponds to "Brand.Binding" in the schema 
-and BrandBinding =
-    | Unbound
-    | Type of Type
-
-    static member Read(reader: Capnp.Schema.Brand.Binding.READER) =
-        match reader.which with
-        | Brand.Binding.WHICH.Unbound -> Unbound
-        | Brand.Binding.WHICH.Type -> Type(Type.Read reader.Type)
         | x -> outOfRange (int32 x)
 
 type Annotation = 
