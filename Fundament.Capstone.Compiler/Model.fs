@@ -411,7 +411,9 @@ let buildModel (reader: CodeGeneratorRequest.READER) : RoseForest<Node> =
     let rec buildTree (reader: Capnp.Schema.Node.READER) =
         { Root = Node.Read nameTable reader
           Children =
-            childrenTable[reader.Id]
+            childrenTable
+            |> Map.tryFind reader.Id
+            |> Option.defaultValue []
             |> List.map (fun childId -> nodeTable[childId])
             |> List.map buildTree }
 
