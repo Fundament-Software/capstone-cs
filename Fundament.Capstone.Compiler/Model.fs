@@ -3,14 +3,9 @@ module Fundament.Capstone.Compiler.Model
 open Capnp.Schema
 open FSharpPlus
 
-let inline private TODO<'T> m : 'T =
-    raise (System.NotImplementedException(m))
-
 let inline private BLOCKED_ON<'T> m : 'T =
     let message = sprintf "Blocked on: %s" (String.concat "\n" m)
     raise (System.NotImplementedException(message))
-
-let inline private NOTDONE<'T> : 'T = raise (System.NotImplementedException())
 
 let inline private outOfRange<'T> e : 'T = raise (System.ArgumentOutOfRangeException($"Unknown enum value: %d{(e)}"))
 
@@ -65,9 +60,9 @@ type Value =
         | Value.WHICH.Data -> Data(reader.Data |> Array.ofSeq)
         | Value.WHICH.List -> List(reader.List)
         | Value.WHICH.Enum -> Enum(reader.Enum)
-        | Value.WHICH.Struct -> NOTDONE
+        | Value.WHICH.Struct -> BLOCKED_ON [ "I don't know what to do with structs yet" ]
         | Value.WHICH.Interface -> Interface
-        | Value.WHICH.AnyPointer -> NOTDONE
+        | Value.WHICH.AnyPointer -> BLOCKED_ON [ "I don't know what to do with any pointers yet" ]
         | x -> outOfRange (int32 x)
 
 type Type =
@@ -189,6 +184,19 @@ type Field =
       Variant: FieldVariant
       Ordinal: FieldOrdinal }
 
+    static member Read(reader: Capnp.Schema.Field.READER) =
+        let annotations = reader.Annotations |> Seq.map Annotation.Read |> List.ofSeq
+        let variant = FieldVariant.Read reader
+        let ordinal = FieldOrdinal.Read reader.Ordinal
+        {
+            Name = reader.Name;
+            CodeOrder = reader.CodeOrder;
+            Annotations = annotations;
+            DiscriminantValue = reader.DiscriminantValue;
+            Variant = variant;
+            Ordinal = ordinal;
+        }
+
 /// Corresponds to the inner union of "Field" in the schema
 and FieldVariant =
     | Slot of Offset: uint32 * Type: Type * DefaultValue: Value * HadExplicitDefault: bool
@@ -215,8 +223,19 @@ type Enumerant =
     { Name: string
       CodeOrder: uint16
       Annotations: Annotation list }
+    
+    static member Read(reader: Capnp.Schema.Enumerant.READER) =
+        {
+            Name = reader.Name;
+            CodeOrder = reader.CodeOrder;
+            Annotations = reader.Annotations |> Seq.map Annotation.Read |> List.ofSeq;
+        }
 
-type Superclass = { Id: Id; Brand: Brand }
+type Superclass = 
+    { Id: Id; Brand: Brand }
+
+    static member Read(reader: Capnp.Schema.Superclass.READER) =
+        { Id = reader.Id; Brand = Brand.Read reader.Brand }
 
 type Method =
     { Name: string
@@ -227,6 +246,20 @@ type Method =
       ResultStructType: Id
       ResultBrand: Brand
       Annotations: Annotation list }
+    
+    static member Read(reader: Capnp.Schema.Method.READER) =
+        let implicitParameters = reader.ImplicitParameters |> Seq.map (fun reader -> reader.Name) |> List.ofSeq
+        let annotations = reader.Annotations |> Seq.map Annotation.Read |> List.ofSeq
+        {
+            Name = reader.Name;
+            CodeOrder = reader.CodeOrder;
+            ImplicitParameters = implicitParameters;
+            ParamStructType = reader.ParamStructType;
+            ParamBrand = Brand.Read reader.ParamBrand;
+            ResultStructType = reader.ResultStructType;
+            ResultBrand = Brand.Read reader.ResultBrand;
+            Annotations = annotations;
+        }
 
 type Node =
     { Id: Id
@@ -241,12 +274,14 @@ type Node =
         let readParameters (readers: Capnp.Schema.Node.Parameter.READER seq) = 
             readers |> Seq.map (fun reader -> reader.Name) |> List.ofSeq;
         
+        let annotations = reader.Annotations |> Seq.map Annotation.Read |> List.ofSeq
+
         { Id = reader.Id;
         DisplayName = reader.DisplayName;
         DisplayNamePrefixLength = reader.DisplayNamePrefixLength;
         Parameters = readParameters reader.Parameters;
         IsGeneric = reader.IsGeneric;
-        Annotations = [ ]; // TODO: Actually implement this
+        Annotations = annotations;
         Variant = NodeVariant.Read nameTable reader }
 
 and NodeVariant =
