@@ -3,6 +3,17 @@ module Fundament.Capstone.Compiler.Model
 open Capnp.Schema
 open FSharpPlus
 
+let inline private TODO<'T> m : 'T =
+    raise (System.NotImplementedException(m))
+
+let inline private BLOCKED_ON<'T> m : 'T =
+    let message = sprintf "Blocked on: %s" (String.concat "\n" m)
+    raise (System.NotImplementedException(message))
+
+let inline private NOTDONE<'T> : 'T = raise (System.NotImplementedException())
+
+let inline private outOfRange<'T> e : 'T = raise (System.ArgumentOutOfRangeException($"Unknown enum value: %d{(e)}"))
+
 type Id = uint64
 
 type ElementSize =
@@ -53,6 +64,11 @@ type Value =
         | Value.WHICH.Text -> Text(reader.Text)
         | Value.WHICH.Data -> Data(reader.Data |> Array.ofSeq)
         | Value.WHICH.List -> List(reader.List)
+        | Value.WHICH.Enum -> Enum(reader.Enum)
+        | Value.WHICH.Struct -> NOTDONE
+        | Value.WHICH.Interface -> Interface
+        | Value.WHICH.AnyPointer -> NOTDONE
+        | x -> outOfRange (int32 x)
 
 type Type =
     | Void
@@ -74,22 +90,65 @@ type Type =
     | Struct of TypeId: Id * Brand: Brand
     | Interface of TypeId: Id * Brand: Brand
     | AnyPointer of AnyPointerType
+    
+    static let rec ReadImpl(reader: Capnp.Schema.Type.READER) =
+        match reader.which with
+        | Type.WHICH.Void -> Void
+        | Type.WHICH.Bool -> Bool
+        | Type.WHICH.Int8 -> Int8
+        | Type.WHICH.Int16 -> Int16
+        | Type.WHICH.Int32 -> Int32
+        | Type.WHICH.Int64 -> Int64
+        | Type.WHICH.Uint8 -> UInt8
+        | Type.WHICH.Uint16 -> UInt16
+        | Type.WHICH.Uint32 -> UInt32
+        | Type.WHICH.Uint64 -> UInt64
+        | Type.WHICH.Float32 -> Float32
+        | Type.WHICH.Float64 -> Float64
+        | Type.WHICH.Text -> Text
+        | Type.WHICH.Data -> Data
+        | Type.WHICH.List -> List(ReadImpl(reader.List.ElementType))
+        | Type.WHICH.Enum -> Enum(reader.Enum.TypeId, Brand.Read(reader.Enum.Brand))
+        | Type.WHICH.Struct -> Struct(reader.Struct.TypeId, Brand.Read(reader.Struct.Brand))
+        | Type.WHICH.Interface -> Interface(reader.Interface.TypeId, Brand.Read(reader.Interface.Brand))
+        | Type.WHICH.AnyPointer -> AnyPointer(AnyPointerType.Read(reader.AnyPointer))
+        | x -> outOfRange (int32 x)
+    
+    static member Read(reader: Capnp.Schema.Type.READER) = ReadImpl reader
 
 and Brand = 
-    { Scopes: BrandScope list }
+    { Scopes: BrandScope list}
+
+    static member Read(reader: Capnp.Schema.Brand.READER) =
+        { Scopes = reader.Scopes |> Seq.map BrandScope.Read |> List.ofSeq }
 
 
 and BrandScope =
     { ScopeId: Id
       Variant: BrandScopeVariant }
+    static member Read(reader: Capnp.Schema.Brand.Scope.READER) =
+        { ScopeId = reader.ScopeId; Variant = BrandScopeVariant.Read reader }
+
 
 and BrandScopeVariant =
     | Bind of BrandBinding list
     | Inherit
 
+    static member Read(reader: Capnp.Schema.Brand.Scope.READER) =
+        match reader.which with
+        | Brand.Scope.WHICH.Bind -> Bind(reader.Bind |> Seq.map BrandBinding.Read |> List.ofSeq)
+        | Brand.Scope.WHICH.Inherit -> Inherit
+        | x -> outOfRange (int32 x)
+
 and BrandBinding =
     | Unbound
     | Type of Type
+
+    static member Read(reader: Capnp.Schema.Brand.Binding.READER) =
+        match reader.which with
+        | Brand.Binding.WHICH.Unbound -> Unbound
+        | Brand.Binding.WHICH.Type -> Type(Type.Read reader.Type)
+        | x -> outOfRange (int32 x)
 
 and AnyPointerType =
     | UnconstrainedAnyKind
@@ -98,6 +157,19 @@ and AnyPointerType =
     | UnconstrainedCapability
     | Parameter of Id: Id * ParameterIndex: uint16
     | ImplicitMethodParameter of ParameterIndex: uint16
+
+    static member Read(reader: Capnp.Schema.Type.anyPointer.READER) =
+        match reader.which with
+        | Type.anyPointer.WHICH.Unconstrained -> 
+            match reader.Unconstrained.which with
+            | Type.anyPointer.unconstrained.WHICH.AnyKind -> UnconstrainedAnyKind
+            | Type.anyPointer.unconstrained.WHICH.Struct -> UnconstrainedStruct
+            | Type.anyPointer.unconstrained.WHICH.List -> UnconstrainedList
+            | Type.anyPointer.unconstrained.WHICH.Capability -> UnconstrainedCapability
+            | x -> outOfRange (int32 x)
+        | Type.anyPointer.WHICH.Parameter -> Parameter(reader.Parameter.ScopeId, reader.Parameter.ParameterIndex)
+        | Type.anyPointer.WHICH.ImplicitMethodParameter -> ImplicitMethodParameter(reader.ImplicitMethodParameter.ParameterIndex)
+        | x -> outOfRange (int32 x)
 
 type Annotation = 
     { Id: Id; Brand: Brand; Value: Value }
@@ -154,7 +226,7 @@ type Node =
         Parameters = readParameters reader.Parameters;
         IsGeneric = reader.IsGeneric;
         Annotations = [ ]; // TODO: Actually implement this
-        Variant = File }
+        Variant = NodeVariant.Read nameTable reader }
 
 and NodeVariant =
     | File
@@ -204,7 +276,7 @@ and NodeVariant =
                 [])
         | Node.WHICH.Enum -> Enum(name.Value, [])
         | Node.WHICH.Interface -> Interface(name.Value, [], [])
-        | Node.WHICH.Const -> Enum(name.Value, )
+        | Node.WHICH.Const -> Const(name.Value, )
 
 let buildModel (reader: CodeGeneratorRequest.READER) =
     // Answers the question "What is the name of the node with this Id"
