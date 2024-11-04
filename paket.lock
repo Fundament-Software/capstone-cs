@@ -25,6 +25,14 @@ NUGET
       EmptyFiles (>= 8.2) - restriction: || (>= net472) (>= net6.0)
       System.Collections.Immutable (>= 8.0) - restriction: || (>= net472) (&& (>= net6.0) (< net7.0)) (&& (>= net7.0) (< net8.0))
       System.Management (>= 8.0) - restriction: || (>= net472) (>= net6.0)
+    Dumpify (0.6.6) - restriction: >= net6.0
+      Spectre.Console (>= 0.48) - restriction: >= netstandard2.0
+    EluciusFTW.SpectreCoff (0.49.2)
+      Dumpify (>= 0.6.5) - restriction: >= net6.0
+      FSharp.Core (>= 6.0) - restriction: >= net6.0
+      Spectre.Console (>= 0.49.1) - restriction: >= net6.0
+      Spectre.Console.ImageSharp (>= 0.49.1) - restriction: >= net6.0
+      Spectre.Console.Json (>= 0.49.1) - restriction: >= net6.0
     EmptyFiles (8.2) - restriction: >= netstandard2.0
       System.Collections.Immutable (>= 8.0) - restriction: || (>= net472) (&& (>= net6.0) (< net7.0)) (&& (>= net7.0) (< net8.0))
       System.Memory (>= 4.5.5) - restriction: >= net472
@@ -178,6 +186,13 @@ NUGET
       DiffEngine (>= 11.3) - restriction: >= netstandard2.0
       EmptyFiles (>= 4.4) - restriction: >= netstandard2.0
       Microsoft.CSharp (>= 4.7) - restriction: && (< net5.0) (>= netstandard2.0)
+    SixLabors.ImageSharp (3.1.5) - restriction: >= net6.0
+    Spectre.Console (0.49.1) - restriction: >= net6.0
+    Spectre.Console.ImageSharp (0.49.1) - restriction: >= net6.0
+      SixLabors.ImageSharp (>= 3.1.4) - restriction: >= net6.0
+      Spectre.Console (>= 0.49.1) - restriction: >= net6.0
+    Spectre.Console.Json (0.49.1) - restriction: >= net6.0
+      Spectre.Console (>= 0.49.1) - restriction: >= netstandard2.0
     StyleCop.Analyzers (1.2.0-beta.556)
       StyleCop.Analyzers.Unstable (>= 1.2.0.556)
     StyleCop.Analyzers.Unstable (1.2.0.556)
