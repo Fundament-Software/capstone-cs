@@ -6,6 +6,7 @@ open Capnp.Schema
 open SpectreCoff
 open Fundament.Capstone.Compiler.Model
 open Fundament.Capstone.Compiler
+open Spectre.Console
 
 type Arguments =
     | [<First; Unique>] File of string
@@ -60,10 +61,38 @@ let model =
     |> buildModel
 
 let displayTree =
+    let nodePrint =
+        function
+        | { Variant = NodeVariant.File } as n ->
+            Many
+                [ E "File Node "
+                  MCD(Color.SteelBlue, [ Decoration.Bold ], n.DisplayName)
+                  C $" Id: {n.Id}" ]
+        | { Variant = NodeVariant.Struct(dwc, pc, _, _, _, fields) } as n ->
+            Many
+                [ E "Struct Node"
+                  MCD(Color.SteelBlue, [ Decoration.Bold ], Option.defaultValue n.DisplayName n.SymbolName)
+                  C $" Id: {n.Id}"
+                  P $"(Data Word Count: {dwc}, Pointer Count: {pc}, Field Count: {fields.Length})" ]
+        | { Variant = NodeVariant.Enum(enumerants) } as n ->
+            Many
+                [ E "Enum Node"
+                  MCD(Color.SteelBlue, [ Decoration.Bold ], Option.defaultValue n.DisplayName n.SymbolName)
+                  C $" Id: {n.Id}"
+                  NL
+                  BI(List.map (fun (e: Enumerant) -> P $"{e.Name} {e.CodeOrder}") enumerants) ]
+        | { Variant = NodeVariant.Const(t, value) } as n ->
+            Many
+                [ E "Const Node"
+                  MCD(Color.SteelBlue, [ Decoration.Bold ], Option.defaultValue n.DisplayName n.SymbolName)
+                  C $" Id: {n.Id}"
+                  P $"(Type: %A{t}, Value: %A{value})" ]
+        | n -> Calm $"Node: %A{n}"
+
     let folder (n: Node) =
         function
-        | [] -> node (Calm $"Node: %A{n}") []
-        | childNodes -> node (Calm $"Node: %A{n}") childNodes
+        | [] -> node (nodePrint n) []
+        | childNodes -> node (nodePrint n) childNodes
 
     List.map (fun tree -> RoseTree.foldTree folder tree) model
 
