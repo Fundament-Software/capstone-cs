@@ -3,6 +3,9 @@ open System
 open System.Reflection
 open Capnp
 open Capnp.Schema
+open SpectreCoff
+open Fundament.Capstone.Compiler.Model
+open Fundament.Capstone.Compiler
 
 type Arguments =
     | [<First; Unique>] File of string
@@ -49,15 +52,21 @@ let inputStream =
     | Ok(inputStream) -> inputStream
     | Error(code) -> exit code
 
-let reader =
+let model =
     inputStream
     |> Framing.ReadSegments
     |> DeserializerState.CreateRoot
     |> CodeGeneratorRequest.READER.create
+    |> buildModel
 
-for file in reader.RequestedFiles do
-    let imports = file.Imports |> Seq.map (fun i -> $"Name: {i.Name} - Id: {i.Id}")
-    printfn $"File: {file.Filename} Id: {file.Id} Imports: %A{imports}"
+let displayTree =
+    let nodeDisplay (n: Node) = node (Calm $"Node: %A{n}") []
 
-for node in reader.Nodes do
-    printfn $"{node.which} Node: {node.DisplayName} Id: {node.Id} ParentId: {node.ScopeId}"
+    let folder (n: Node) =
+        function
+        | [] -> node (Calm $"Node: %A{n}") []
+        | childNodes -> node (Calm $"Node: %A{n}") childNodes
+
+    List.map (fun tree -> RoseTree.foldTree folder tree) model
+
+tree (Pumped "Compilation Request") displayTree |> toOutputPayload |> toConsole
