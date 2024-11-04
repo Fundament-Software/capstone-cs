@@ -1,8 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <Version>0.0.1</Version>
-  </PropertyGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

@@ -8,6 +8,11 @@ indent_style = space
 [*.xml]
 indent_size = 2
 
+# F# files
+[*.{fs,fsx,fsi}]
+indent_size = 4
+tab_width = 4
+
 # C# files
 [*.cs]
 

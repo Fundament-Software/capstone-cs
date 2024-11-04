@@ -2,10 +2,13 @@ source https://api.nuget.org/v3/index.json
 
 storage: none
 
+nuget Argu
 nuget Capnp.Net.Runtime
 nuget CliWrap ~> 3.6
 nuget CommunityToolkit.Diagnostics ~> 8.2
 nuget CommunityToolkit.HighPerformance ~> 8.2
+nuget EluciusFTW.SpectreCoff
+nuget FSharpPlus ~> 1.6
 nuget Microsoft.Extensions.Logging ~> 8.0
 nuget Microsoft.Extensions.Logging.Console ~> 8.0
 nuget OneOf ~> 3.0
