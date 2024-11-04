@@ -60,8 +60,6 @@ let model =
     |> buildModel
 
 let displayTree =
-    let nodeDisplay (n: Node) = node (Calm $"Node: %A{n}") []
-
     let folder (n: Node) =
         function
         | [] -> node (Calm $"Node: %A{n}") []
