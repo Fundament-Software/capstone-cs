@@ -7,7 +7,10 @@ let inline private BLOCKED_ON<'T> m : 'T =
     let message = sprintf "Blocked on: %s" (String.concat "\n" m)
     raise (System.NotImplementedException(message))
 
-let inline private outOfRange<'T> e : 'T = raise (System.ArgumentOutOfRangeException($"Unknown enum value: %d{(e)}"))
+let inline private outOfRange<'T> e : 'T =
+    raise (System.ArgumentOutOfRangeException($"Unknown enum value: %d{(e)}"))
+
+let inline private readList reader readFn = reader |> Seq.map readFn |> List.ofSeq
 
 type Id = uint64
 
@@ -85,8 +88,8 @@ type Type =
     | Struct of TypeId: Id * Brand: Brand
     | Interface of TypeId: Id * Brand: Brand
     | AnyPointer of AnyPointerType
-    
-    static let rec ReadImpl(reader: Capnp.Schema.Type.READER) =
+
+    static let rec ReadImpl (reader: Capnp.Schema.Type.READER) =
         match reader.which with
         | Type.WHICH.Void -> Void
         | Type.WHICH.Bool -> Bool
@@ -108,7 +111,7 @@ type Type =
         | Type.WHICH.Interface -> Interface(reader.Interface.TypeId, Brand.Read(reader.Interface.Brand))
         | Type.WHICH.AnyPointer -> AnyPointer(AnyPointerType.Read(reader.AnyPointer))
         | x -> outOfRange (int32 x)
-    
+
     static member Read(reader: Capnp.Schema.Type.READER) = ReadImpl reader
 
 /// Corresponds to the "anyPointer" union variant in Type in the schema.
@@ -123,7 +126,7 @@ and AnyPointerType =
 
     static member Read(reader: Capnp.Schema.Type.anyPointer.READER) =
         match reader.which with
-        | Type.anyPointer.WHICH.Unconstrained -> 
+        | Type.anyPointer.WHICH.Unconstrained ->
             match reader.Unconstrained.which with
             | Type.anyPointer.unconstrained.WHICH.AnyKind -> UnconstrainedAnyKind
             | Type.anyPointer.unconstrained.WHICH.Struct -> UnconstrainedStruct
@@ -131,35 +134,38 @@ and AnyPointerType =
             | Type.anyPointer.unconstrained.WHICH.Capability -> UnconstrainedCapability
             | x -> outOfRange (int32 x)
         | Type.anyPointer.WHICH.Parameter -> Parameter(reader.Parameter.ScopeId, reader.Parameter.ParameterIndex)
-        | Type.anyPointer.WHICH.ImplicitMethodParameter -> ImplicitMethodParameter(reader.ImplicitMethodParameter.ParameterIndex)
+        | Type.anyPointer.WHICH.ImplicitMethodParameter ->
+            ImplicitMethodParameter(reader.ImplicitMethodParameter.ParameterIndex)
         | x -> outOfRange (int32 x)
 
 // `and` is used here because BrandBinding depends on Type and Type depends on Brand.
-and Brand = 
-    { Scopes: BrandScope list}
+and Brand =
+    { Scopes: BrandScope list }
 
     static member Read(reader: Capnp.Schema.Brand.READER) =
-        { Scopes = reader.Scopes |> Seq.map BrandScope.Read |> List.ofSeq }
+        { Scopes = readList reader.Scopes BrandScope.Read }
 
-/// Corresponds to "Brand.Scope" in the schema 
+/// Corresponds to "Brand.Scope" in the schema
 and BrandScope =
     { ScopeId: Id
       Variant: BrandScopeVariant }
-    static member Read(reader: Capnp.Schema.Brand.Scope.READER) =
-        { ScopeId = reader.ScopeId; Variant = BrandScopeVariant.Read reader }
 
-/// Corresponds to the union inside "Brand.Scope" in the schema 
+    static member Read(reader: Capnp.Schema.Brand.Scope.READER) =
+        { ScopeId = reader.ScopeId
+          Variant = BrandScopeVariant.Read reader }
+
+/// Corresponds to the union inside "Brand.Scope" in the schema
 and BrandScopeVariant =
     | Bind of BrandBinding list
     | Inherit
 
     static member Read(reader: Capnp.Schema.Brand.Scope.READER) =
         match reader.which with
-        | Brand.Scope.WHICH.Bind -> Bind(reader.Bind |> Seq.map BrandBinding.Read |> List.ofSeq)
+        | Brand.Scope.WHICH.Bind -> Bind(readList reader.Bind BrandBinding.Read)
         | Brand.Scope.WHICH.Inherit -> Inherit
         | x -> outOfRange (int32 x)
 
-/// Corresponds to "Brand.Binding" in the schema 
+/// Corresponds to "Brand.Binding" in the schema
 and BrandBinding =
     | Unbound
     | Type of Type
@@ -170,11 +176,15 @@ and BrandBinding =
         | Brand.Binding.WHICH.Type -> Type(Type.Read reader.Type)
         | x -> outOfRange (int32 x)
 
-type Annotation = 
-    { Id: Id; Brand: Brand; Value: Value }
+type Annotation =
+    { Id: Id
+      Brand: Brand
+      Value: Value }
 
     static member Read(reader: Capnp.Schema.Annotation.READER) =
-        { Id = reader.Id; Brand = Brand.Read reader.Brand; Value = Value.Read reader.Value }
+        { Id = reader.Id
+          Brand = Brand.Read reader.Brand
+          Value = Value.Read reader.Value }
 
 type Field =
     { Name: string
@@ -185,17 +195,16 @@ type Field =
       Ordinal: FieldOrdinal }
 
     static member Read(reader: Capnp.Schema.Field.READER) =
-        let annotations = reader.Annotations |> Seq.map Annotation.Read |> List.ofSeq
+        let annotations = readList reader.Annotations Annotation.Read
         let variant = FieldVariant.Read reader
         let ordinal = FieldOrdinal.Read reader.Ordinal
-        {
-            Name = reader.Name;
-            CodeOrder = reader.CodeOrder;
-            Annotations = annotations;
-            DiscriminantValue = reader.DiscriminantValue;
-            Variant = variant;
-            Ordinal = ordinal;
-        }
+
+        { Name = reader.Name
+          CodeOrder = reader.CodeOrder
+          Annotations = annotations
+          DiscriminantValue = reader.DiscriminantValue
+          Variant = variant
+          Ordinal = ordinal }
 
 /// Corresponds to the inner union of "Field" in the schema
 and FieldVariant =
@@ -204,38 +213,44 @@ and FieldVariant =
 
     static member Read(reader: Capnp.Schema.Field.READER) =
         match reader.which with
-        | Capnp.Schema.Field.WHICH.Slot -> Slot(reader.Slot.Offset, Type.Read reader.Slot.Type, Value.Read reader.Slot.DefaultValue, reader.Slot.HadExplicitDefault)
-        | Capnp.Schema.Field.WHICH.Group -> Group(reader.Group.TypeId)
+        | Field.WHICH.Slot ->
+            Slot(
+                reader.Slot.Offset,
+                Type.Read reader.Slot.Type,
+                Value.Read reader.Slot.DefaultValue,
+                reader.Slot.HadExplicitDefault
+            )
+        | Field.WHICH.Group -> Group(reader.Group.TypeId)
         | x -> outOfRange (int32 x)
 
-/// Corresponds to "Field.ordinal" in the schema 
+/// Corresponds to "Field.ordinal" in the schema
 and FieldOrdinal =
     | Implicit
     | Explicit of uint16
 
     static member Read(reader: Capnp.Schema.Field.ordinal.READER) =
         match reader.which with
-        | Capnp.Schema.Field.ordinal.WHICH.Implicit -> Implicit
-        | Capnp.Schema.Field.ordinal.WHICH.Explicit -> Explicit(reader.Explicit)
+        | Field.ordinal.WHICH.Implicit -> Implicit
+        | Field.ordinal.WHICH.Explicit -> Explicit(reader.Explicit)
         | x -> outOfRange (int32 x)
 
 type Enumerant =
     { Name: string
       CodeOrder: uint16
       Annotations: Annotation list }
-    
-    static member Read(reader: Capnp.Schema.Enumerant.READER) =
-        {
-            Name = reader.Name;
-            CodeOrder = reader.CodeOrder;
-            Annotations = reader.Annotations |> Seq.map Annotation.Read |> List.ofSeq;
-        }
 
-type Superclass = 
-    { Id: Id; Brand: Brand }
+    static member Read(reader: Capnp.Schema.Enumerant.READER) =
+        { Name = reader.Name
+          CodeOrder = reader.CodeOrder
+          Annotations = readList reader.Annotations Annotation.Read }
+
+type Superclass =
+    { Id: Id
+      Brand: Brand }
 
     static member Read(reader: Capnp.Schema.Superclass.READER) =
-        { Id = reader.Id; Brand = Brand.Read reader.Brand }
+        { Id = reader.Id
+          Brand = Brand.Read reader.Brand }
 
 type Method =
     { Name: string
@@ -246,20 +261,21 @@ type Method =
       ResultStructType: Id
       ResultBrand: Brand
       Annotations: Annotation list }
-    
+
     static member Read(reader: Capnp.Schema.Method.READER) =
-        let implicitParameters = reader.ImplicitParameters |> Seq.map (fun reader -> reader.Name) |> List.ofSeq
-        let annotations = reader.Annotations |> Seq.map Annotation.Read |> List.ofSeq
-        {
-            Name = reader.Name;
-            CodeOrder = reader.CodeOrder;
-            ImplicitParameters = implicitParameters;
-            ParamStructType = reader.ParamStructType;
-            ParamBrand = Brand.Read reader.ParamBrand;
-            ResultStructType = reader.ResultStructType;
-            ResultBrand = Brand.Read reader.ResultBrand;
-            Annotations = annotations;
-        }
+        let implicitParameters =
+            reader.ImplicitParameters |> Seq.map (fun reader -> reader.Name) |> List.ofSeq
+
+        let annotations = readList reader.Annotations Annotation.Read
+
+        { Name = reader.Name
+          CodeOrder = reader.CodeOrder
+          ImplicitParameters = implicitParameters
+          ParamStructType = reader.ParamStructType
+          ParamBrand = Brand.Read reader.ParamBrand
+          ResultStructType = reader.ResultStructType
+          ResultBrand = Brand.Read reader.ResultBrand
+          Annotations = annotations }
 
 type Node =
     { Id: Id
@@ -271,18 +287,32 @@ type Node =
       Variant: NodeVariant }
 
     static let Read nameTable (reader: Capnp.Schema.Node.READER) =
-        let readParameters (readers: Capnp.Schema.Node.Parameter.READER seq) = 
-            readers |> Seq.map (fun reader -> reader.Name) |> List.ofSeq;
-        
-        let annotations = reader.Annotations |> Seq.map Annotation.Read |> List.ofSeq
+        { Id = reader.Id
+          DisplayName = reader.DisplayName
+          DisplayNamePrefixLength = reader.DisplayNamePrefixLength
+          Parameters = readList reader.Parameters (fun reader -> reader.Name)
+          IsGeneric = reader.IsGeneric
+          Annotations = readList reader.Annotations Annotation.Read
+          Variant = NodeVariant.Read nameTable reader }
 
-        { Id = reader.Id;
-        DisplayName = reader.DisplayName;
-        DisplayNamePrefixLength = reader.DisplayNamePrefixLength;
-        Parameters = readParameters reader.Parameters;
-        IsGeneric = reader.IsGeneric;
-        Annotations = annotations;
-        Variant = NodeVariant.Read nameTable reader }
+// Exists so we can pattern match on the variant without having to repeat the reader type names
+and private NodeVariantReader =
+    | File
+    | Struct of Capnp.Schema.Node.``struct``.READER
+    | Enum of Capnp.Schema.Node.``enum``.READER
+    | Interface of Capnp.Schema.Node.``interface``.READER
+    | Const of Capnp.Schema.Node.``const``.READER
+    | Annotation of Capnp.Schema.Node.``annotation``.READER
+
+    static member FromReader(reader: Capnp.Schema.Node.READER) =
+        match reader.which with
+        | Node.WHICH.File -> File
+        | Node.WHICH.Struct -> Struct(reader.Struct)
+        | Node.WHICH.Enum -> Enum(reader.Enum)
+        | Node.WHICH.Interface -> Interface(reader.Interface)
+        | Node.WHICH.Const -> Const(reader.Const)
+        | Node.WHICH.Annotation -> Annotation(reader.Annotation)
+        | x -> outOfRange (int32 x)
 
 and NodeVariant =
     | File
@@ -316,23 +346,45 @@ and NodeVariant =
 
     static member Read nameTable (reader: Capnp.Schema.Node.READER) =
         let name = lazy (Map.find reader.Id nameTable)
-        
-        // TODO: We only deserilize the first "layer" of data right now. Implement deserialization functions for the lower types.
-        match reader.which with
-        | Node.WHICH.File -> File
-        | Node.WHICH.Struct ->
-            let structReader = reader.Struct
-            Struct (
+
+        match NodeVariantReader.FromReader reader with
+        | NodeVariantReader.File -> File
+        | NodeVariantReader.Struct(structReader) ->
+            Struct(
                 name.Value,
                 structReader.DataWordCount,
                 structReader.PointerCount,
                 structReader.IsGroup,
                 structReader.DiscriminantCount,
                 structReader.DiscriminantOffset,
-                [])
-        | Node.WHICH.Enum -> Enum(name.Value, [])
-        | Node.WHICH.Interface -> Interface(name.Value, [], [])
-        | Node.WHICH.Const -> Const(name.Value, )
+                []
+            )
+        | NodeVariantReader.Enum(enumReader) -> Enum(name.Value, readList enumReader.Enumerants Enumerant.Read)
+        | NodeVariantReader.Interface(interfaceReader) ->
+            Interface(
+                name.Value,
+                readList interfaceReader.Methods Method.Read,
+                readList interfaceReader.Superclasses Superclass.Read
+            )
+        | NodeVariantReader.Const(constReader) ->
+            Const(name.Value, Type.Read constReader.Type, Value.Read constReader.Value)
+        | NodeVariantReader.Annotation(annotationReader) ->
+            Annotation(
+                name.Value,
+                Type.Read annotationReader.Type,
+                annotationReader.TargetsFile,
+                annotationReader.TargetsConst,
+                annotationReader.TargetsEnum,
+                annotationReader.TargetsEnumerant,
+                annotationReader.TargetsStruct,
+                annotationReader.TargetsField,
+                annotationReader.TargetsUnion,
+                annotationReader.TargetsGroup,
+                annotationReader.TargetsInterface,
+                annotationReader.TargetsMethod,
+                annotationReader.TargetsParam,
+                annotationReader.TargetsAnnotation
+            )
 
 let buildModel (reader: CodeGeneratorRequest.READER) =
     // Answers the question "What is the name of the node with this Id"
