@@ -139,6 +139,7 @@ and AnyPointerType =
         | Type.anyPointer.WHICH.ImplicitMethodParameter -> ImplicitMethodParameter(reader.ImplicitMethodParameter.ParameterIndex)
         | x -> outOfRange (int32 x)
 
+// `and` is used here because BrandBinding depends on Type and Type depends on Brand.
 and Brand = 
     { Scopes: BrandScope list}
 
@@ -177,6 +178,9 @@ and BrandBinding =
 type Annotation = 
     { Id: Id; Brand: Brand; Value: Value }
 
+    static member Read(reader: Capnp.Schema.Annotation.READER) =
+        { Id = reader.Id; Brand = Brand.Read reader.Brand; Value = Value.Read reader.Value }
+
 type Field =
     { Name: string
       CodeOrder: uint16
@@ -185,13 +189,27 @@ type Field =
       Variant: FieldVariant
       Ordinal: FieldOrdinal }
 
+/// Corresponds to the inner union of "Field" in the schema
 and FieldVariant =
     | Slot of Offset: uint32 * Type: Type * DefaultValue: Value * HadExplicitDefault: bool
     | Group of TypeId: Id
 
+    static member Read(reader: Capnp.Schema.Field.READER) =
+        match reader.which with
+        | Capnp.Schema.Field.WHICH.Slot -> Slot(reader.Slot.Offset, Type.Read reader.Slot.Type, Value.Read reader.Slot.DefaultValue, reader.Slot.HadExplicitDefault)
+        | Capnp.Schema.Field.WHICH.Group -> Group(reader.Group.TypeId)
+        | x -> outOfRange (int32 x)
+
+/// Corresponds to "Field.ordinal" in the schema 
 and FieldOrdinal =
     | Implicit
     | Explicit of uint16
+
+    static member Read(reader: Capnp.Schema.Field.ordinal.READER) =
+        match reader.which with
+        | Capnp.Schema.Field.ordinal.WHICH.Implicit -> Implicit
+        | Capnp.Schema.Field.ordinal.WHICH.Explicit -> Explicit(reader.Explicit)
+        | x -> outOfRange (int32 x)
 
 type Enumerant =
     { Name: string
