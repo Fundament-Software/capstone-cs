@@ -402,8 +402,13 @@ let buildModel (reader: CodeGeneratorRequest.READER) : RoseForest<Node> =
     let childrenTable =
         let foldFn table (reader: Capnp.Schema.Node.READER) =
             let parentId = reader.ScopeId
-            let childrenIds = Map.tryFind parentId table |> Option.defaultValue [ reader.Id ]
-            Map.add reader.ScopeId childrenIds table
+
+            let childrenIds =
+                match Map.tryFind parentId table with
+                | None -> [ reader.Id ]
+                | Some(childrenIds) -> reader.Id :: childrenIds
+
+            Map.add parentId childrenIds table
 
         Seq.fold foldFn Map.empty reader.Nodes
 
